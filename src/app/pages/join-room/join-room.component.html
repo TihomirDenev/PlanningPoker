@@ -1,0 +1,26 @@
+<div class="join-room">
+  <h1>Join a Planning Poker Room</h1>
+
+  <div>
+    <input
+      type="text"
+      placeholder="Enter your name"
+      [(ngModel)]="name"
+      required
+    />
+  </div>
+
+  <div>
+    <input
+      type="text"
+      placeholder="Enter room code"
+      [(ngModel)]="roomCode"
+      required
+    />
+  </div>
+
+  <div class="action-buttons" style="margin-top: 12px">
+    <button (click)="joinRoom()">Join Room</button>
+    <button (click)="generateRoomCode()">Create New Room</button>
+  </div>
+</div>

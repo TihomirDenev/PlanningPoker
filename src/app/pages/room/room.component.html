@@ -1,0 +1,36 @@
+<div class="header-wrapper">
+  <div class="header">
+    <img src="/jagermeister.png" alt="Jagermeister logo" />
+    <div class="controls-block">
+      <div class="vote-deck">
+        <button
+          *ngFor="let value of voteValues"
+          (click)="selectVote(value)"
+          [class.selected]="selectedVote === value"
+        >
+          {{ value }}
+        </button>
+      </div>
+
+      <div class="controls">
+        <button class="reveal" (click)="toggleReveal()">
+          {{ showVotes ? "🙈 Hide Votes" : "🔒 Reveal Votes" }}
+        </button>
+        <button class="reset" (click)="resetVotes()">🗑️ Reset</button>
+      </div>
+    </div>
+    <img src="/jaguar.png" alt="Jaguar image" />
+  </div>
+</div>
+
+<ul class="player-list">
+  <li *ngFor="let player of players">
+    <span class="playerName">{{ player.name | titlecase }}</span>
+    <span class="playerVote">
+      <ng-container *ngIf="player.vote">
+        {{ showVotes ? player.vote : "✅ Voted" }}
+      </ng-container>
+      <ng-container *ngIf="!player.vote">❌</ng-container>
+    </span>
+  </li>
+</ul>

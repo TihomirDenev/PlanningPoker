@@ -1,0 +1,23 @@
+$color-bg: #0f3d3e;
+$color-dark: #2c2c2c;
+$color-dark-hover: #1f1f1f;
+$color-gold: #d4af37;
+$color-gold-light: #f5d774;
+$color-gold-border: rgba(245, 215, 116, 0.2);
+$color-green: #28a745;
+$color-red: #dc3545;
+$color-button-bg: #072c1e;
+$color-badge: #886e16;
+$color-light: #f5f5f5;
+
+h1 {
+  margin-bottom: 1.5rem;
+  color: #f5d774;
+  font-size: 1.8rem;
+}
+
+h2,
+h3 {
+  color: red;
+  text-align: center;
+}

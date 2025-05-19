@@ -4,12 +4,12 @@
   display: flex;
   justify-content: center;
   margin-bottom: 2rem;
-  padding-bottom: 5rem;
+  padding-bottom: 3.5rem;
 
   .header {
     display: flex;
     align-items: center;
-    gap: 14rem;
+    gap: 12rem;
     max-width: 80rem;
 
     img {
@@ -41,9 +41,10 @@
 
     .controls {
       display: flex;
+      align-items: center;
       gap: 1rem;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin: 1.5rem;
 
       .reveal,
       .reset {
@@ -107,4 +108,99 @@ button.reset {
   color: white;
   background-color: #dc3545;
   border-color: #dc3545;
+}
+
+.average-display {
+  min-height: 2rem;
+  margin: 1rem;
+  color: $color-gold-light;
+  font-size: 1.5rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  visibility: hidden;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@media (max-width: 1024px) {
+  .header-wrapper .header {
+    gap: 2rem;
+
+    .vote-deck {
+      button {
+        width: 50px;
+        height: 50px;
+        font-size: 1rem;
+      }
+    }
+
+    .controls {
+      button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .average-display {
+    margin: 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  .player-list li {
+    align-items: flex-start;
+    gap: 0.3rem;
+    height: auto;
+  }
+}
+
+.hover-card-wrapper {
+  position: relative;
+  display: inline-block;
+
+  .room-details-card {
+    position: absolute;
+    top: 120%;
+    left: 50%;
+    z-index: 999;
+    display: none;
+    width: 150px;
+    padding: 1rem 1.5rem;
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    background: #143d3d;
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #ffd700;
+      font-size: 1.2rem;
+    }
+
+    p {
+      margin: 0.3rem 0;
+      font-size: 0.95rem;
+    }
+
+    .yes {
+      color: #00e676;
+    }
+
+    .no {
+      color: #ff5252;
+    }
+  }
+
+  &:hover .room-details-card {
+    display: block;
+  }
 }

@@ -1,6 +1,23 @@
 <div class="header-wrapper">
   <div class="header">
-    <img src="/jagermeister.png" alt="Jagermeister logo" />
+    <div class="hover-card-wrapper">
+      <img
+        src="/jagermeister.png"
+        alt="Jagermeister logo"
+        title="Jagermeister"
+      />
+
+      <div class="room-details-card">
+        <h3>📋 Room Details</h3>
+        <p><strong>Room Name:</strong> {{ roomId }}</p>
+        <p><strong>Online People:</strong> {{ players.length }}</p>
+        <p *ngIf="showVotes">
+          <strong>Average Vote:</strong> {{ averageVote ?? "—" }}
+        </p>
+        <p><strong>Voted:</strong> {{ votedCount }} / {{ totalPlayers }}</p>
+      </div>
+    </div>
+
     <div class="controls-block">
       <div class="vote-deck">
         <button
@@ -19,8 +36,28 @@
         <button class="reset" (click)="resetVotes()">🗑️ Reset</button>
       </div>
     </div>
-    <img src="/jaguar.png" alt="Jaguar image" />
+
+    <div class="hover-card-wrapper">
+      <img src="/jaguar.png" alt="Jaguar image" title="Jaguars" />
+
+      <div class="room-details-card">
+        <h3>📋 Room Details</h3>
+        <p><strong>Room Name:</strong> {{ roomId }}</p>
+        <p><strong>Online People:</strong> {{ players.length }}</p>
+        <p *ngIf="showVotes">
+          <strong>Average Vote:</strong> {{ averageVote ?? "—" }}
+        </p>
+        <p><strong>Voted:</strong> {{ votedCount }} / {{ totalPlayers }}</p>
+      </div>
+    </div>
   </div>
+</div>
+
+<div
+  class="average-display"
+  [class.visible]="showVotes && averageVote !== null"
+>
+  🎯 <strong>Average Vote:</strong> {{ averageVote }}
 </div>
 
 <ul class="player-list">

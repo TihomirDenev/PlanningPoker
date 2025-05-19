@@ -1,8 +1,10 @@
 <div class="join-room">
   <h1>Join a Planning Poker Room</h1>
 
-  <div>
+  <div class="input-group">
+    <label for="name">Your Name: <span class="required">*</span></label>
     <input
+      id="name"
       type="text"
       placeholder="Enter your name"
       [(ngModel)]="name"
@@ -10,8 +12,10 @@
     />
   </div>
 
-  <div>
+  <div class="input-group">
+    <label for="room">Room Name: <span class="required">*</span></label>
     <input
+      id="room"
       type="text"
       placeholder="Enter room code"
       [(ngModel)]="roomCode"
@@ -19,8 +23,13 @@
     />
   </div>
 
+  <div class="input-group">
+    <label for="votes">Voting Cards:</label>
+    <input id="votes" [(ngModel)]="customVotes" placeholder="e.g. 1,2,3,5,8" />
+  </div>
+
   <div class="action-buttons" style="margin-top: 12px">
-    <button (click)="joinRoom()">Join Room</button>
-    <button (click)="generateRoomCode()">Create New Room</button>
+    <button (click)="joinRoom()">Create Room</button>
+    <button (click)="generateRoomCode()">Random Room Number</button>
   </div>
 </div>

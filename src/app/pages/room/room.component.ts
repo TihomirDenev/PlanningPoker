@@ -3,9 +3,26 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FirebaseApp } from '@angular/fire/app';
 
-import { collection, doc, getFirestore, onSnapshot, setDoc, updateDoc, deleteDoc, Firestore, getDoc, getDocs } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getFirestore,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  Firestore,
+  getDoc,
+  getDocs,
+} from 'firebase/firestore';
 
-interface Player { id: string; name: string; vote: string | null; joinedAt: any; lastActive: number; }
+interface Player {
+  id: string;
+  name: string;
+  vote: string | null;
+  joinedAt: any;
+  lastActive: number;
+}
 
 @Component({
   standalone: true,
@@ -18,9 +35,10 @@ export class RoomComponent implements OnInit, OnDestroy {
   roomId!: string;
   userName!: string;
   players: Player[] = [];
-  voteValues: string[] = ['1', '2', '3', '5', '8'];
+  voteValues: string[] = [];
   showVotes = false;
   selectedVote: string | null = null;
+  averageVote: number | null = null;
 
   private firestore!: Firestore;
   private unsubscribePlayers: () => void = () => {};
@@ -50,7 +68,6 @@ export class RoomComponent implements OnInit, OnDestroy {
     const playerDoc = doc(playersRef, this.userName);
     const roomDoc = doc(this.firestore, `rooms/${this.roomId}`);
 
-    // Set initial player 
     setDoc(playerDoc, {
       name: this.userName,
       joinedAt: new Date(),
@@ -58,42 +75,71 @@ export class RoomComponent implements OnInit, OnDestroy {
       lastActive: Date.now()
     });
 
-    // Initialize room if it doesn't exist
     getDoc(roomDoc).then((docSnap) => {
       if (!docSnap.exists()) {
         setDoc(roomDoc, { showVotes: false });
       }
     });
 
-    // Real-time room voting state
-    this.unsubscribeRoom = onSnapshot(roomDoc, (docSnap) => {
+    this.unsubscribeRoom = onSnapshot(roomDoc, (docSnap: any) => {
       const data = docSnap.data();
-      if (data && typeof data['showVotes'] === 'boolean') {
-        this.showVotes = data['showVotes'];
+      if (data) {
+        if (typeof data['showVotes'] === 'boolean') {
+          this.showVotes = data['showVotes'];
+          if (this.showVotes) {
+            this.calculateAverage();
+          } else {
+            this.averageVote = null;
+          }
+        }
+        if (Array.isArray(data['voteValues'])) {
+          this.voteValues = data['voteValues'];
+        }
       }
     });
 
-    // Real-time players
-    this.unsubscribePlayers = onSnapshot(playersRef, (snapshot) => {
+    this.unsubscribePlayers = onSnapshot(playersRef, (snapshot: any) => {
       this.players = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() } as Player))
-        .filter(player => Date.now() - player.lastActive < 10000);
+        .map((doc: any) => ({ id: doc.id, ...doc.data() } as Player))
+        .filter((player: Player) => Date.now() - player.lastActive < 10000);
+      if (this.showVotes) {
+        this.calculateAverage();
+      }
     });
 
-    // Real-time listener for current user's vote
-    onSnapshot(playerDoc, (docSnap) => {
+    onSnapshot(playerDoc, (docSnap: any) => {
       const data = docSnap.data();
       if (data) {
         this.selectedVote = data['vote'];
       }
     });
 
-    // Heartbeat
     this.heartbeatInterval = setInterval(() => {
       updateDoc(playerDoc, { lastActive: Date.now() });
     }, 5000);
 
     window.addEventListener('beforeunload', this.handleLeave);
+  }
+
+  get votedCount(): number {
+    return this.players.filter(p => p.vote !== null).length;
+  }
+
+  get totalPlayers(): number {
+    return this.players.length;
+  }
+
+  calculateAverage(): void {
+    const numericVotes = this.players
+      .map((p) => parseFloat(p.vote || ''))
+      .filter((v) => !isNaN(v));
+
+    if (numericVotes.length) {
+      const sum = numericVotes.reduce((acc, val) => acc + val, 0);
+      this.averageVote = parseFloat((sum / numericVotes.length).toFixed(2));
+    } else {
+      this.averageVote = null;
+    }
   }
 
   selectVote(value: string) {
@@ -106,7 +152,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     const playersRef = collection(this.firestore, `rooms/${this.roomId}/players`);
     const snapshot = await getDocs(playersRef);
 
-    snapshot.forEach((docSnap) => {
+    snapshot.forEach((docSnap: any) => {
       const playerRef = doc(this.firestore, `rooms/${this.roomId}/players/${docSnap.id}`);
       updateDoc(playerRef, { vote: null });
     });
@@ -115,6 +161,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     await updateDoc(roomDoc, { showVotes: false });
 
     this.selectedVote = null;
+    this.averageVote = null;
   }
 
   toggleReveal() {
@@ -131,7 +178,9 @@ export class RoomComponent implements OnInit, OnDestroy {
 
     if (snapshot.empty) {
       const roomDoc = doc(this.firestore, `rooms/${this.roomId}`);
-      await deleteDoc(roomDoc);
+      await updateDoc(roomDoc, {
+        roomClosedAt: Date.now(),
+      });
     }
   };
 

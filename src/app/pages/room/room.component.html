@@ -1,11 +1,7 @@
 <div class="header-wrapper">
   <div class="header">
     <div class="hover-card-wrapper">
-      <img
-        src="/jagermeister.png"
-        alt="Jagermeister logo"
-        title="Jagermeister"
-      />
+      <img src="/jagermeister.png" alt="Jagermeister logo" />
 
       <div class="room-details-card">
         <h3>📋 Room Details</h3>
@@ -30,15 +26,19 @@
       </div>
 
       <div class="controls">
-        <button class="reveal" (click)="toggleReveal()">
+        <button
+          class="reveal"
+          (click)="toggleReveal()"
+          [disabled]="votedCount === 0"
+        >
           {{ showVotes ? "🙈 Hide Votes" : "🔒 Reveal Votes" }}
         </button>
-        <button class="reset" (click)="resetVotes()">🗑️ Reset</button>
+        <button class="reset" (click)="resetVotes()">🗑️ Clear Votes</button>
       </div>
     </div>
 
     <div class="hover-card-wrapper">
-      <img src="/jaguar.png" alt="Jaguar image" title="Jaguars" />
+      <img src="/jaguar.png" alt="Jaguar image" />
 
       <div class="room-details-card">
         <h3>📋 Room Details</h3>
@@ -61,7 +61,7 @@
 </div>
 
 <ul class="player-list">
-  <li *ngFor="let player of players">
+  <li *ngFor="let player of players" [class.me]="player.name === userName">
     <span class="playerName">{{ player.name | titlecase }}</span>
     <span class="playerVote">
       <ng-container *ngIf="player.vote">

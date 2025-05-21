@@ -1,28 +1,17 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { FirebaseApp } from '@angular/fire/app';
+import { onSnapshot, getDocs, updateDoc } from 'firebase/firestore';
 
+import { RoomService } from 'src/app/shared/services/room.service';
+import { Player } from 'src/app/shared/models/player.model';
+import { STORAGE_KEYS, MESSAGES, FIRESTORE_FIELDS, PLAYER_TIMEOUT_MS, HEARTBEAT_INTERVAL_MS } from 'src/app/shared/constants/constants';
 import {
-  collection,
-  doc,
-  getFirestore,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  Firestore,
-  getDoc,
-  getDocs,
-} from 'firebase/firestore';
-
-interface Player {
-  id: string;
-  name: string;
-  vote: string | null;
-  joinedAt: any;
-  lastActive: number;
-}
+  calculateAverageVote,
+  generateUniqueName,
+  hasPlayerVoted,
+  isPlayerActive
+} from 'src/app/shared/utils/room-utils';
 
 @Component({
   standalone: true,
@@ -36,159 +25,139 @@ export class RoomComponent implements OnInit, OnDestroy {
   userName!: string;
   players: Player[] = [];
   voteValues: string[] = [];
+
   showVotes = false;
   selectedVote: string | null = null;
   averageVote: number | null = null;
 
-  private firestore!: Firestore;
+  private heartbeatInterval!: ReturnType<typeof setInterval>;
   private unsubscribePlayers: () => void = () => {};
   private unsubscribeRoom: () => void = () => {};
-  private heartbeatInterval!: ReturnType<typeof setInterval>;
 
-  private app = inject(FirebaseApp);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private roomService = inject(RoomService);
 
-  ngOnInit(): void {
-    this.firestore = getFirestore(this.app);
+  async ngOnInit(): Promise<void> {
     this.roomId = this.route.snapshot.paramMap.get('roomId')!;
-    this.userName = localStorage.getItem('userName') ?? '';
 
-    if (!this.userName) {
-      const enteredName = prompt('Enter your name to join the room:');
-      if (!enteredName) {
-        this.router.navigate(['/']);
-        return;
-      }
-      this.userName = enteredName.trim();
-      localStorage.setItem('userName', this.userName);
+    const roomExists = await this.roomService.roomExists(this.roomId);
+    if (!roomExists) {
+      this.router.navigate(['/404']);
+      return;
     }
 
-    const playersRef = collection(this.firestore, `rooms/${this.roomId}/players`);
-    const playerDoc = doc(playersRef, this.userName);
-    const roomDoc = doc(this.firestore, `rooms/${this.roomId}`);
+    this.userName = await this.initializeUserName();
+    await this.roomService.createPlayer(this.roomId, this.userName);
 
-    setDoc(playerDoc, {
-      name: this.userName,
-      joinedAt: new Date(),
-      vote: null,
-      lastActive: Date.now()
-    });
-
-    getDoc(roomDoc).then((docSnap) => {
-      if (!docSnap.exists()) {
-        setDoc(roomDoc, { showVotes: false });
-      }
-    });
-
-    this.unsubscribeRoom = onSnapshot(roomDoc, (docSnap: any) => {
-      const data = docSnap.data();
-      if (data) {
-        if (typeof data['showVotes'] === 'boolean') {
-          this.showVotes = data['showVotes'];
-          if (this.showVotes) {
-            this.calculateAverage();
-          } else {
-            this.averageVote = null;
-          }
-        }
-        if (Array.isArray(data['voteValues'])) {
-          this.voteValues = data['voteValues'];
-        }
-      }
-    });
-
-    this.unsubscribePlayers = onSnapshot(playersRef, (snapshot: any) => {
-      this.players = snapshot.docs
-        .map((doc: any) => ({ id: doc.id, ...doc.data() } as Player))
-        .filter((player: Player) => Date.now() - player.lastActive < 10000);
-      if (this.showVotes) {
-        this.calculateAverage();
-      }
-    });
-
-    onSnapshot(playerDoc, (docSnap: any) => {
-      const data = docSnap.data();
-      if (data) {
-        this.selectedVote = data['vote'];
-      }
-    });
+    this.subscribeToRoom();
+    this.subscribeToPlayers();
+    this.subscribeToMyVote();
 
     this.heartbeatInterval = setInterval(() => {
-      updateDoc(playerDoc, { lastActive: Date.now() });
-    }, 5000);
+      const playerRef = this.roomService.getPlayerDoc(this.roomId, this.userName);
+      updateDoc(playerRef, { lastActive: Date.now() });
+    }, HEARTBEAT_INTERVAL_MS);
 
     window.addEventListener('beforeunload', this.handleLeave);
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribeRoom();
+    this.unsubscribePlayers();
+    clearInterval(this.heartbeatInterval);
+    this.handleLeave();
+    window.removeEventListener('beforeunload', this.handleLeave);
+  }
+
   get votedCount(): number {
-    return this.players.filter(p => p.vote !== null).length;
+    return this.players.filter(hasPlayerVoted).length;
   }
 
   get totalPlayers(): number {
     return this.players.length;
   }
 
-  calculateAverage(): void {
-    const numericVotes = this.players
-      .map((p) => parseFloat(p.vote || ''))
-      .filter((v) => !isNaN(v));
-
-    if (numericVotes.length) {
-      const sum = numericVotes.reduce((acc, val) => acc + val, 0);
-      this.averageVote = parseFloat((sum / numericVotes.length).toFixed(2));
-    } else {
-      this.averageVote = null;
-    }
-  }
-
-  selectVote(value: string) {
+  selectVote(value: string): void {
     this.selectedVote = value;
-    const voteRef = doc(this.firestore, `rooms/${this.roomId}/players/${this.userName}`);
-    updateDoc(voteRef, { vote: value });
+    const playerRef = this.roomService.getPlayerDoc(this.roomId, this.userName);
+    updateDoc(playerRef, { vote: value });
   }
 
-  async resetVotes() {
-    const playersRef = collection(this.firestore, `rooms/${this.roomId}/players`);
-    const snapshot = await getDocs(playersRef);
-
-    snapshot.forEach((docSnap: any) => {
-      const playerRef = doc(this.firestore, `rooms/${this.roomId}/players/${docSnap.id}`);
-      updateDoc(playerRef, { vote: null });
-    });
-
-    const roomDoc = doc(this.firestore, `rooms/${this.roomId}`);
-    await updateDoc(roomDoc, { showVotes: false });
-
+  async resetVotes(): Promise<void> {
+    await this.roomService.resetPlayerVotes(this.roomId);
     this.selectedVote = null;
     this.averageVote = null;
   }
 
-  toggleReveal() {
-    const roomDoc = doc(this.firestore, `rooms/${this.roomId}`);
-    updateDoc(roomDoc, { showVotes: !this.showVotes });
+  toggleReveal(): void {
+    const roomRef = this.roomService.getRoomDoc(this.roomId);
+    updateDoc(roomRef, { showVotes: !this.showVotes });
+  }
+
+  private async initializeUserName(): Promise<string> {
+    let baseName = localStorage.getItem(STORAGE_KEYS.userName) ?? '';
+
+    if (!baseName) {
+      const enteredName = prompt(MESSAGES.enterName);
+      if (!enteredName) {
+        this.router.navigate(['/']);
+        return '';
+      }
+      baseName = enteredName.trim();
+    }
+
+    return await this.ensureUniqueName(baseName);
+  }
+
+  private async ensureUniqueName(baseName: string): Promise<string> {
+    const playersRef = this.roomService.getPlayersCollection(this.roomId);
+    const snapshot = await getDocs(playersRef);
+    const existingNames = snapshot.docs.map(doc => doc.id);
+
+    const finalName = generateUniqueName(baseName, existingNames);
+    localStorage.setItem(STORAGE_KEYS.userName, finalName);
+    return finalName;
+  }
+
+  private subscribeToRoom(): void {
+    const roomDoc = this.roomService.getRoomDoc(this.roomId);
+    this.unsubscribeRoom = onSnapshot(roomDoc, (docSnap: any) => {
+      const data = docSnap.data();
+      if (!data) return;
+
+      this.showVotes = !!data[FIRESTORE_FIELDS.showVotes];
+      this.voteValues = Array.isArray(data[FIRESTORE_FIELDS.voteValues]) ? data[FIRESTORE_FIELDS.voteValues] : [];
+
+      this.showVotes ? this.calculateAverage() : this.averageVote = null;
+    });
+  }
+
+  private subscribeToPlayers(): void {
+    const playersRef = this.roomService.getPlayersCollection(this.roomId);
+    this.unsubscribePlayers = onSnapshot(playersRef, (snapshot: any) => {
+      this.players = snapshot.docs
+        .map((doc: any) => ({ id: doc.id, ...doc.data() } as Player))
+        .filter((player: Player) => isPlayerActive(player, PLAYER_TIMEOUT_MS));
+
+      if (this.showVotes) this.calculateAverage();
+    });
+  }
+
+  private subscribeToMyVote(): void {
+    const playerDoc = this.roomService.getPlayerDoc(this.roomId, this.userName);
+    onSnapshot(playerDoc, (docSnap: any) => {
+      const data = docSnap.data();
+      if (data) this.selectedVote = data[FIRESTORE_FIELDS.vote];
+    });
+  }
+
+  private calculateAverage(): void {
+    this.averageVote = calculateAverageVote(this.players);
   }
 
   handleLeave = async () => {
-    const playerRef = doc(this.firestore, `rooms/${this.roomId}/players/${this.userName}`);
-    await deleteDoc(playerRef);
-
-    const playersRef = collection(this.firestore, `rooms/${this.roomId}/players`);
-    const snapshot = await getDocs(playersRef);
-
-    if (snapshot.empty) {
-      const roomDoc = doc(this.firestore, `rooms/${this.roomId}`);
-      await updateDoc(roomDoc, {
-        roomClosedAt: Date.now(),
-      });
-    }
+    await this.roomService.deletePlayer(this.roomId, this.userName);
+    await this.roomService.closeRoomIfEmpty(this.roomId);
   };
-
-  ngOnDestroy(): void {
-    this.unsubscribePlayers();
-    this.unsubscribeRoom();
-    clearInterval(this.heartbeatInterval);
-    this.handleLeave();
-    window.removeEventListener('beforeunload', this.handleLeave);
-  }
 }

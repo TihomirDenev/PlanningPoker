@@ -1,15 +1,23 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import { FirebaseApp } from '@angular/fire/app';
+
+import { RoomService } from 'src/app/shared/services/room.service';
+import {
+  DEFAULT_VOTE_VALUES,
+  ROOM_CODE_MIN,
+  ROOM_CODE_MAX,
+  STORAGE_USER_NAME_KEY,
+  ROUTE_ROOM_BASE,
+  ERROR_MESSAGES,
+} from 'src/app/shared/constants/constants';
 
 @Component({
   standalone: true,
   imports: [FormsModule],
   selector: 'app-join-room',
   templateUrl: './join-room.component.html',
-  styleUrls: ['./join-room.component.scss']
+  styleUrls: ['./join-room.component.scss'],
 })
 export class JoinRoomComponent {
   name = '';
@@ -17,33 +25,48 @@ export class JoinRoomComponent {
   customVotes = '';
 
   private router = inject(Router);
-  private app = inject(FirebaseApp);
+  private roomService = inject(RoomService);
 
-  async joinRoom() {
+  async joinRoom(): Promise<void> {
     if (!this.name || !this.roomCode) return;
 
-    localStorage.setItem('userName', this.name);
+    const roomAlreadyExists = await this.roomService.roomExists(this.roomCode);
+    if (roomAlreadyExists) {
+      alert(ERROR_MESSAGES.roomAlreadyExists);
+      this.router.navigate(['/']);
+      return;
+    }
 
-    const firestore = getFirestore(this.app);
-    const roomDoc = doc(firestore, `rooms/${this.roomCode}`);
+    localStorage.setItem(STORAGE_USER_NAME_KEY, this.name);
+    const voteValues = this.getVoteValues();
 
-    const parsedVotes = this.customVotes
-      .split(',')
-      .map(v => v.trim())
-      .filter(v => v !== '');
-
-    const voteValues = parsedVotes.length ? parsedVotes : ['1', '2', '3', '5', '8'];
-    voteValues.sort((a,b) => +a - +b);
-    
-    await setDoc(roomDoc, {
+    await this.roomService.updateRoom(this.roomCode, {
       showVotes: false,
-      voteValues
-    }, { merge: true });
+      voteValues,
+    });
 
-    this.router.navigate(['/room', this.roomCode]);
+    this.router.navigate([ROUTE_ROOM_BASE, this.roomCode]);
   }
 
-  generateRoomCode() {
-    this.roomCode = Math.floor(100000 + Math.random() * 900000).toString();
+  generateRoomCode(): void {
+    this.roomCode = this.createRandomRoomCode();
+  }
+
+  private getVoteValues(): string[] {
+    const parsedVotes = this.customVotes
+      .split(',')
+      .map((v) => v.split(' ').join(''))
+      .map((v) => v.trim())
+      .filter((v) => v && !isNaN(Number(v)));
+
+    const votes = parsedVotes.length ? parsedVotes : [...DEFAULT_VOTE_VALUES];
+    return votes.sort((a, b) => +a - +b);
+  }
+
+  private createRandomRoomCode(): string {
+    const random =
+      Math.floor(Math.random() * (ROOM_CODE_MAX - ROOM_CODE_MIN + 1)) +
+      ROOM_CODE_MIN;
+    return random.toString();
   }
 }

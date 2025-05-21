@@ -29,7 +29,9 @@
   </div>
 
   <div class="action-buttons" style="margin-top: 12px">
-    <button (click)="joinRoom()">Create Room</button>
+    <button (click)="joinRoom()" [disabled]="!name || !roomCode">
+      Create Room
+    </button>
     <button (click)="generateRoomCode()">Random Room Number</button>
   </div>
 </div>

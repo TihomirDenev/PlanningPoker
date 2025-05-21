@@ -1,0 +1,46 @@
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.not-found-wrapper {
+  padding-bottom: 1rem;
+  color: #fff;
+  text-align: center;
+}
+
+.not-found-content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-width: 500px;
+}
+
+.not-found-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.home-link {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  color: #0d2c24; // deep green text for contrast
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+  background-color: #ffcc00; // gold-yellow
+  text-decoration: none;
+}
+
+.home-link:hover {
+  transform: translateY(-2px);
+  background-color: #e6b800; // darker gold
+}
+
+.home-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(255, 204, 0, 0.2);
+}

@@ -1,7 +1,7 @@
 export interface Player {
   id: string;
   name: string;
-  vote: string | null;
   joinedAt: any;
+  vote: string | null;
   lastActive: number;
 }

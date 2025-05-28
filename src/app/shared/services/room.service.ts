@@ -1,10 +1,21 @@
 import { inject, Injectable } from '@angular/core';
 import { FirebaseApp } from '@angular/fire/app';
 
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, Firestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  Firestore,
+} from 'firebase/firestore';
 
 import { RoomSettings } from 'src/app/shared/models/room-settings.model';
 import { COLLECTIONS } from 'src/app/shared/constants/constants';
+import { Player } from '../models/player.model';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
@@ -17,9 +28,11 @@ export class RoomService {
     const snapshot = await getDoc(roomDoc);
     const data = snapshot.data();
 
-    return snapshot.exists()
-      && Array.isArray(data?.['voteValues'])
-      && typeof data?.['showVotes'] === 'boolean';
+    return (
+      snapshot.exists() &&
+      Array.isArray(data?.['voteValues']) &&
+      typeof data?.['showVotes'] === 'boolean'
+    );
   }
 
   async updateRoom(roomCode: string, settings: RoomSettings): Promise<void> {
@@ -36,21 +49,22 @@ export class RoomService {
   }
 
   getPlayersCollection(roomId: string) {
-    return collection(this.firestore, `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}`);
+    return collection(
+      this.firestore,
+      `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}`
+    );
   }
 
   getPlayerDoc(roomId: string, userName: string) {
-    return doc(this.firestore, `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}/${userName}`);
+    return doc(
+      this.firestore,
+      `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}/${userName}`
+    );
   }
 
-  async createPlayer(roomId: string, userName: string): Promise<void> {
-    const playerRef = this.getPlayerDoc(roomId, userName);
-    await setDoc(playerRef, {
-      name: userName,
-      joinedAt: new Date(),
-      vote: null,
-      lastActive: Date.now()
-    });
+  async createPlayer(roomId: string, player: Player): Promise<void> {
+    const playerRef = this.getPlayerDoc(roomId, player.id);
+    await setDoc(playerRef, player);
   }
 
   async resetPlayerVotes(roomId: string): Promise<void> {
@@ -88,7 +102,10 @@ export class RoomService {
     for (const roomDoc of roomSnapshots.docs) {
       const roomId = roomDoc.id;
 
-      const playersCol = collection(this.firestore, `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}`);
+      const playersCol = collection(
+        this.firestore,
+        `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}`
+      );
       const playersSnap = await getDocs(playersCol);
 
       for (const playerDoc of playersSnap.docs) {

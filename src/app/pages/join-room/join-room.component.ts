@@ -3,14 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { RoomService } from 'src/app/shared/services/room.service';
-import {
-  DEFAULT_VOTE_VALUES,
-  ROOM_CODE_MIN,
-  ROOM_CODE_MAX,
-  STORAGE_USER_NAME_KEY,
-  ROUTE_ROOM_BASE,
-  ERROR_MESSAGES,
-} from 'src/app/shared/constants/constants';
+import { DEFAULT_VOTE_VALUES, ROOM_CODE_MIN, ROOM_CODE_MAX, STORAGE_USER_NAME_KEY, ROUTE_ROOM_BASE, ERROR_MESSAGES } from 'src/app/shared/constants/constants';
 
 @Component({
   standalone: true,
@@ -33,7 +26,8 @@ export class JoinRoomComponent {
     const roomAlreadyExists = await this.roomService.roomExists(this.roomCode);
     if (roomAlreadyExists) {
       alert(ERROR_MESSAGES.roomAlreadyExists);
-      this.router.navigate(['/']);
+      this.roomCode = '';
+      
       return;
     }
 
@@ -49,7 +43,11 @@ export class JoinRoomComponent {
   }
 
   generateRoomCode(): void {
-    this.roomCode = this.createRandomRoomCode();
+    const random =
+      Math.floor(Math.random() * (ROOM_CODE_MAX - ROOM_CODE_MIN + 1)) +
+      ROOM_CODE_MIN;
+
+    this.roomCode = random.toString();
   }
 
   private getVoteValues(): string[] {
@@ -60,13 +58,12 @@ export class JoinRoomComponent {
       .filter((v) => v && !isNaN(Number(v)));
 
     const votes = parsedVotes.length ? parsedVotes : [...DEFAULT_VOTE_VALUES];
-    return votes.sort((a, b) => +a - +b);
-  }
 
-  private createRandomRoomCode(): string {
-    const random =
-      Math.floor(Math.random() * (ROOM_CODE_MAX - ROOM_CODE_MIN + 1)) +
-      ROOM_CODE_MIN;
-    return random.toString();
+    votes.push('bin');
+    return votes.sort((a, b) => {
+      if (a === 'bin') return 1;
+      if (b === 'bin') return -1;
+      return +a - +b;
+    });
   }
 }

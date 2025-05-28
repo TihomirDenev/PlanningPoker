@@ -20,8 +20,13 @@
           *ngFor="let value of voteValues"
           (click)="selectVote(value)"
           [class.selected]="selectedVote === value"
+          [ngClass]="{ 'bin-btn': value === 'bin' }"
+          [disabled]="value === 'bin' && !selectedVote"
         >
-          {{ value }}
+          <ng-container *ngIf="value !== 'bin'">
+            {{ value }}
+          </ng-container>
+          <ng-container *ngIf="value === 'bin'"> 🗑️ </ng-container>
         </button>
       </div>
 
@@ -61,8 +66,18 @@
 </div>
 
 <ul class="player-list">
-  <li *ngFor="let player of players" [class.me]="player.name === userName">
-    <span class="playerName">{{ player.name | titlecase }}</span>
+  <li *ngFor="let player of sortedPlayers" [class.me]="player.id === playerId">
+    <span class="playerName">
+      <p>{{ player.name | titlecase }}</p>
+      <img
+        *ngIf="player.id === playerId"
+        class="rename-img"
+        src="/rename.png"
+        alt="Rename"
+        title="Change your name"
+        (click)="renamePlayer()"
+      />
+    </span>
     <span class="playerVote">
       <ng-container *ngIf="player.vote">
         {{ showVotes ? player.vote : "✅ Voted" }}

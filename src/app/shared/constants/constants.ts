@@ -13,34 +13,34 @@ export const ROUTE_ROOM_BASE = '/room';
 
 // Error messages
 export const ERROR_MESSAGES = {
-  roomAlreadyExists: 'A room with this name already exists.'
+  roomAlreadyExists: 'A room with this name already exists. Enter a new name.',
 };
 
 // Firestore collection/field names
 export const COLLECTIONS = {
   rooms: 'rooms',
-  players: 'players'
+  players: 'players',
 };
 
 // Firestore field names
 export const STORAGE_KEYS = {
-  userName: 'userName'
+  userName: 'userName',
 };
 
 export const MESSAGES = {
-  enterName: 'Enter your name to join the room:'
+  enterName: 'Enter your name to join the room:',
 };
 
 // Firestore field keys
 export const FIRESTORE_FIELDS = {
   showVotes: 'showVotes',
   vote: 'vote',
-  voteValues: 'voteValues'
+  voteValues: 'voteValues',
 };
 
 // Player session constants
-export const PLAYER_TIMEOUT_MS = 10000;
-export const HEARTBEAT_INTERVAL_MS = 5000;
+export const HEARTBEAT_INTERVAL_MS = 60000; // 1 min
+export const PLAYER_TIMEOUT_MS = 300000; // 5 min
 
 // Average vote precision
 export const AVERAGE_DECIMALS = 2;
@@ -48,5 +48,5 @@ export const AVERAGE_DECIMALS = 2;
 // Cleanup messages
 export const CLEANUP_MESSAGES = {
   success: '✅ All rooms and players deleted successfully.',
-  failure: '❌ Failed to delete some or all rooms. Check console for details.'
+  failure: '❌ Failed to delete some or all rooms. Check console for details.',
 };

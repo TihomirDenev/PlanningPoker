@@ -1,4 +1,4 @@
-@import "../../../styles.scss";
+@import 'src/styles.scss';
 
 .header-wrapper {
   display: flex;
@@ -73,6 +73,16 @@
     background: rgba(255, 255, 255, 0.05);
     color: $color-light;
     font-weight: bold;
+
+    .playerName {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .rename-img {
+        height: 1.5rem;
+      }
+    }
   }
 }
 
@@ -153,7 +163,7 @@ button.reset {
     border-radius: 12px;
     background: #143d3d;
     color: #fff;
-    font-family: "Segoe UI", sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     text-align: center;
     transform: translateX(-50%);
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
@@ -184,38 +194,55 @@ button.reset {
   }
 }
 
+.vote-deck button.bin-btn {
+  transition: 0.2s;
+  background-color: #650808;
+}
+
+.vote-deck button.bin-btn:hover {
+  background: #f80000;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: lighten($color-gold, 10%);
+  border-color: lighten($color-gold, 10%);
+}
+
+
 @media (max-width: 1024px) {
   .header-wrapper {
     padding-bottom: 0;
-  }
 
-  .header-wrapper .header {
-    align-items: center;
-    gap: 2rem;
-    flex-direction: column;
-    padding: 1rem;
-
-    .vote-deck {
-      flex-wrap: wrap;
-      justify-content: center;
-      min-width: unset;
-
-      button {
-        width: 50px;
-        height: 50px;
-        font-size: 1rem;
-      }
-    }
-
-    .controls {
-      gap: 0.5rem;
+    .header {
+      align-items: center;
+      gap: 2rem;
       flex-direction: column;
+      padding: 1rem;
 
-      button {
-        width: 100%;
-        max-width: 200px;
-        padding: 0.4rem 0.8rem;
-        font-size: 0.9rem;
+      .vote-deck {
+        flex-wrap: wrap;
+        justify-content: center;
+        min-width: unset;
+
+        button {
+          width: 50px;
+          height: 50px;
+          font-size: 1rem;
+        }
+      }
+
+      .controls {
+        gap: 0.5rem;
+        flex-direction: column;
+
+        button {
+          width: 100%;
+          max-width: 200px;
+          padding: 0.4rem 0.8rem;
+          font-size: 0.9rem;
+        }
       }
     }
   }
@@ -230,14 +257,14 @@ button.reset {
     padding: 0;
 
     li {
-      align-items: flex-start;
+      align-items: center;
       gap: 0.3rem;
-      height: auto;
+      height: 1rem;
       font-size: 0.95rem;
     }
   }
 
   .hover-card-wrapper {
-    display: none;
+    display: none; // Optional: hide for mobile
   }
 }

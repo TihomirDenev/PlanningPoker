@@ -86,3 +86,35 @@
     </span>
   </li>
 </ul>
+
+<p-dialog
+  [(visible)]="showNameDialog"
+  [modal]="true"
+  [closable]="false"
+  [header]="nameDialogTitle"
+  [style]="{ width: '320px' }"
+>
+  <div>
+    <input
+      pInputText
+      [(ngModel)]="tempName"
+      placeholder="Enter name"
+      (keyup.enter)="onDialogConfirm()"
+      autofocus
+    />
+  </div>
+  <div style="margin-top: 1.5rem; text-align: right">
+    <button
+      pButton
+      label="Enter"
+      (click)="onDialogConfirm()"
+      [disabled]="!tempName.trim()"
+    ></button>
+    <button
+      pButton
+      label="Cancel"
+      (click)="onDialogCancel()"
+      class="p-button-text"
+    ></button>
+  </div>
+</p-dialog>

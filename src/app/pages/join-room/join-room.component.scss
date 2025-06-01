@@ -1,4 +1,4 @@
-@import '../../../styles.scss';
+@import 'src/styles.scss';
 
 :host {
   display: flex;
@@ -9,13 +9,18 @@
 
 .join-room {
   width: 100%;
-  max-width: 400px;
+  max-width: 35rem;
   padding: 2rem;
+  padding-top: 1rem;
   border-radius: 16px;
   background: linear-gradient(145deg, $color-gold, $color-gold-light);
   color: #333;
   text-align: center;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+
+  .title {
+    font-size: 1.4rem;
+  }
 
   .input-group {
     display: flex;

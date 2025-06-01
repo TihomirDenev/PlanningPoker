@@ -1,0 +1,24 @@
+.cleanup-toast-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  color: #ffe985;
+}
+
+.custom-spinner {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.spinner-summary {
+  margin: 0 0 0.4em 0;
+  color: #ffe985;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.spinner-detail {
+  margin: 0;
+  color: #fff9d6;
+  font-size: 1em;
+}

@@ -1,28 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import { FirebaseApp } from '@angular/fire/app';
 
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  collection,
-  getDocs,
-  Firestore,
-} from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, Firestore } from 'firebase/firestore';
 
 import { RoomSettings } from 'src/app/shared/models/room-settings.model';
-import { COLLECTIONS } from 'src/app/shared/constants/constants';
-import { Player } from '../models/player.model';
+import { COLLECTIONS, FIRESTORE_FIELDS } from 'src/app/shared/constants/constants';
+import { Player } from 'src/app/shared/models/player.model';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
   private app = inject(FirebaseApp);
   private firestore = getFirestore(this.app);
 
-  // Existing methods
   async roomExists(roomCode: string): Promise<boolean> {
     const roomDoc = doc(this.firestore, `${COLLECTIONS.rooms}/${roomCode}`);
     const snapshot = await getDoc(roomDoc);
@@ -30,8 +19,8 @@ export class RoomService {
 
     return (
       snapshot.exists() &&
-      Array.isArray(data?.['voteValues']) &&
-      typeof data?.['showVotes'] === 'boolean'
+      Array.isArray(data?.[FIRESTORE_FIELDS.voteValues]) &&
+      typeof data?.[FIRESTORE_FIELDS.showVotes] === 'boolean'
     );
   }
 
@@ -83,16 +72,6 @@ export class RoomService {
   async deletePlayer(roomId: string, userName: string): Promise<void> {
     const playerRef = this.getPlayerDoc(roomId, userName);
     await deleteDoc(playerRef);
-  }
-
-  async closeRoomIfEmpty(roomId: string): Promise<void> {
-    const playersRef = this.getPlayersCollection(roomId);
-    const snapshot = await getDocs(playersRef);
-
-    if (snapshot.empty) {
-      const roomDoc = this.getRoomDoc(roomId);
-      await updateDoc(roomDoc, { roomClosedAt: Date.now() });
-    }
   }
 
   async deleteAllRoomsAndPlayers(): Promise<void> {

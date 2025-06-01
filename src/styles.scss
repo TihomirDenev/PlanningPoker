@@ -21,3 +21,37 @@ h3 {
   color: red;
   text-align: center;
 }
+
+
+.p-toast {
+  z-index: 99999;
+}
+
+.my-custom-toast.p-toast-message {
+  border: 2px solid #f7c873 !important;
+  border-radius: 14px !important;
+  background: #282e34 !important;
+  color: #ffe985 !important;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+.my-custom-toast .p-toast-icon-close {
+  color: #ffe985 !important;
+}
+
+.my-custom-toast .p-toast-summary {
+  color: #ffe985 !important;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.my-custom-toast .p-toast-detail {
+  color: #fff9d6 !important;
+  font-size: 1em;
+}
+
+.my-custom-toast .p-toast-message-icon {
+  color: #f7c873 !important;
+  font-size: 1.5em;
+}

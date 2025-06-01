@@ -1,4 +1,5 @@
-import { Player } from '../models/player.model';
+import { Player } from 'src/app/shared/models/player.model';
+import { STORAGE_KEYS } from 'src/app/shared/constants/constants';
 
 export function calculateAverageVote(players: Player[]): number | null {
   const numericVotes = players
@@ -20,12 +21,12 @@ export function hasPlayerVoted(player: Player): boolean {
 }
 
 export function getLocalPlayerInfo(): { id: string; name: string } {
-  let id = localStorage.getItem('playerId');
-  let name = localStorage.getItem('userName');
+  let id = localStorage.getItem(STORAGE_KEYS.playerId);
+  let name = localStorage.getItem(STORAGE_KEYS.userName);
 
   if (!id) {
     id = Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
-    localStorage.setItem('playerId', id);
+    localStorage.setItem(STORAGE_KEYS.playerId, id);
   }
 
   return { id, name: name || '' };

@@ -8,17 +8,18 @@ import { onSnapshot, updateDoc } from 'firebase/firestore';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 import { RoomService } from 'src/app/shared/services/room.service';
 import { Player } from 'src/app/shared/models/player.model';
 import { FIRESTORE_FIELDS, HEARTBEAT_INTERVAL_MS } from 'src/app/shared/constants/constants';
-import { calculateAverageVote, getLocalPlayerInfo, hasPlayerVoted } from 'src/app/shared/utils/room-utils';
+import { calculateAverageVote, getLocalPlayerInfo, hasPlayerVoted, showToast } from 'src/app/shared/utils/room-utils';
 
 @Component({
   standalone: true,
   imports: [
-    CommonModule, NgFor, NgIf,
-    DialogModule, ButtonModule, InputTextModule, FormsModule
+    CommonModule, NgFor, NgIf, DialogModule, ButtonModule, InputTextModule, FormsModule, ToastModule
   ],
   selector: 'app-room',
   templateUrl: './room.component.html',
@@ -42,6 +43,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private roomService = inject(RoomService);
+  private messageService = inject(MessageService);
 
   showNameDialog = false;
   tempName = '';
@@ -57,12 +59,10 @@ export class RoomComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Get or create player ID and name
     const { id, name } = await this.initializeUser();
     this.playerId = id;
     this.userName = name;
 
-    // Create or update player in Firestore
     await this.roomService.createPlayer(this.roomId, {
       id: this.playerId,
       name: this.userName,
@@ -125,6 +125,14 @@ export class RoomComponent implements OnInit, OnDestroy {
         this.playerId
       );
       updateDoc(playerRef, { vote: null });
+
+      showToast(this.messageService, {
+        severity: 'success',
+        summary: 'Vote removed',
+        detail: 'Your vote was removed successfully.',
+        life: 1800
+      });
+
       return;
     }
     this.selectedVote = value;
@@ -162,6 +170,13 @@ export class RoomComponent implements OnInit, OnDestroy {
       await updateDoc(playerRef, { name: trimmed });
       this.userName = trimmed;
       localStorage.setItem('userName', trimmed);
+
+      showToast(this.messageService, {
+        severity: 'success',
+        summary: 'Name changed',
+        detail: 'Your name has been updated successfully.',
+        life: 2000
+      });
     });
   }
 
@@ -169,6 +184,13 @@ export class RoomComponent implements OnInit, OnDestroy {
     await this.roomService.resetPlayerVotes(this.roomId);
     this.selectedVote = null;
     this.averageVote = null;
+
+    showToast(this.messageService, {
+      severity: 'info',
+      summary: 'Votes cleared',
+      detail: 'All votes were cleared.',
+      life: 1800
+    });
   }
 
   toggleReveal(): void {
@@ -209,21 +231,20 @@ export class RoomComponent implements OnInit, OnDestroy {
     });
   }
 
-private subscribeToPlayers(): void {
-  const playersRef = this.roomService.getPlayersCollection(this.roomId);
-  this.unsubscribePlayers = onSnapshot(playersRef, (snapshot: any) => {
-    this.players = snapshot.docs.map(
-      (doc: any) => ({ id: doc.id, ...doc.data() } as Player)
-    );
+  private subscribeToPlayers(): void {
+    const playersRef = this.roomService.getPlayersCollection(this.roomId);
+    this.unsubscribePlayers = onSnapshot(playersRef, (snapshot: any) => {
+      this.players = snapshot.docs.map(
+        (doc: any) => ({ id: doc.id, ...doc.data() } as Player)
+      );
 
-    if (this.votedCount === 0) {
-      this.showVotes = false;
-    }
+      if (this.votedCount === 0) {
+        this.showVotes = false;
+      }
 
-    if (this.showVotes) this.calculateAverage();
-  });
-}
-
+      if (this.showVotes) this.calculateAverage();
+    });
+  }
 
   private subscribeToMyVote(): void {
     const playerDoc = this.roomService.getPlayerDoc(this.roomId, this.playerId);

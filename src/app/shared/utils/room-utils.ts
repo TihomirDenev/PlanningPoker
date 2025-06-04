@@ -2,6 +2,7 @@ import { MessageService, Message } from 'primeng/api';
 
 import { Player } from 'src/app/shared/models/player.model';
 import { STORAGE_KEYS } from 'src/app/shared/constants/constants';
+import { ToastMessage } from 'src/app/shared/models/toast.model';
 
 export function calculateAverageVote(players: Player[]): number | null {
   const numericVotes = players
@@ -34,19 +35,10 @@ export function getLocalPlayerInfo(): { id: string; name: string } {
   return { id, name: name || '' };
 }
 
-export function showToast( messageService: MessageService, options: {
-    severity?: 'success' | 'info' | 'warn' | 'error',
-    summary: string,
-    detail?: string,
-    life?: number,
-    styleClass?: string
-  }
-) {
+export function showToast(messageService: MessageService, options: ToastMessage): void {
   messageService.add({
-    severity: options.severity || 'info',
-    summary: options.summary,
-    detail: options.detail || '',
-    life: options.life || 2000,
-    styleClass: 'my-custom-toast'
-  } as Message);
+    ...options,
+    styleClass: 'custom-toast',
+    closable: false,
+  });
 }

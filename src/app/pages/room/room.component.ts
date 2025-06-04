@@ -13,17 +13,18 @@ import { MessageService } from 'primeng/api';
 
 import { RoomService } from 'src/app/shared/services/room.service';
 import { Player } from 'src/app/shared/models/player.model';
-import { FIRESTORE_FIELDS, HEARTBEAT_INTERVAL_MS } from 'src/app/shared/constants/constants';
+import { BIN, FIRESTORE_FIELDS, HEARTBEAT_INTERVAL_MS, STORAGE_KEYS } from 'src/app/shared/constants/constants';
 import { calculateAverageVote, getLocalPlayerInfo, hasPlayerVoted, showToast } from 'src/app/shared/utils/room-utils';
+import { TOAST_MESSAGES } from 'src/app/shared/constants/toast.constants';
 
 @Component({
   standalone: true,
-  imports: [
-    CommonModule, NgFor, NgIf, DialogModule, ButtonModule, InputTextModule, FormsModule, ToastModule
-  ],
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
+  imports: [
+    CommonModule, NgFor, NgIf, DialogModule, ButtonModule, InputTextModule, FormsModule, ToastModule
+  ],
 })
 export class RoomComponent implements OnInit, OnDestroy {
   roomId!: string;
@@ -36,6 +37,11 @@ export class RoomComponent implements OnInit, OnDestroy {
   selectedVote: string | null = null;
   averageVote: number | null = null;
 
+  showNameDialog = false;
+  tempName = '';
+  nameDialogTitle = '';
+  nameDialogCallback: ((name: string | null) => void) | null = null;
+
   private heartbeatInterval!: ReturnType<typeof setInterval>;
   private unsubscribePlayers: () => void = () => {};
   private unsubscribeRoom: () => void = () => {};
@@ -45,45 +51,17 @@ export class RoomComponent implements OnInit, OnDestroy {
   private roomService = inject(RoomService);
   private messageService = inject(MessageService);
 
-  showNameDialog = false;
-  tempName = '';
-  nameDialogTitle = '';
-  nameDialogCallback: ((name: string | null) => void) | null = null;
-
   async ngOnInit(): Promise<void> {
-    this.roomId = this.route.snapshot.paramMap.get('roomId')!;
-
-    const roomExists = await this.roomService.roomExists(this.roomId);
-    if (!roomExists) {
-      this.router.navigate(['/NotFound']);
-      return;
-    }
-
-    const { id, name } = await this.initializeUser();
-    this.playerId = id;
-    this.userName = name;
-
-    await this.roomService.createPlayer(this.roomId, {
-      id: this.playerId,
-      name: this.userName,
-      joinedAt: new Date(),
-      vote: null,
-      lastActive: Date.now(),
-    });
+    await this.loadRoom();
+    await this.setupUser();
+    await this.joinRoom();
 
     this.subscribeToRoom();
     this.subscribeToPlayers();
     this.subscribeToMyVote();
 
-    this.heartbeatInterval = setInterval(() => {
-      const playerRef = this.roomService.getPlayerDoc(
-        this.roomId,
-        this.playerId
-      );
-      updateDoc(playerRef, { lastActive: Date.now() });
-    }, HEARTBEAT_INTERVAL_MS);
-
-    window.addEventListener('beforeunload', this.handleLeave);
+    this.startHeartbeat();
+    this.listenForUnload();
   }
 
   ngOnDestroy(): void {
@@ -105,78 +83,51 @@ export class RoomComponent implements OnInit, OnDestroy {
   get sortedPlayers(): Player[] {
     if (this.showVotes) {
       return [...this.players]
-        .filter(
-          (player) =>
-            player.vote !== null &&
-            player.vote !== undefined &&
-            player.vote !== ''
-        )
+        .filter(player => player.vote !== null && player.vote !== undefined && player.vote !== '')
         .sort((a, b) => Number(a.vote) - Number(b.vote))
-        .concat(this.players.filter((player) => !player.vote));
+        .concat(this.players.filter(player => !player.vote));
     }
     return this.players;
   }
 
-  selectVote(value: string): void {
-    if (value === 'bin') {
-      this.selectedVote = null;
-      const playerRef = this.roomService.getPlayerDoc(
-        this.roomId,
-        this.playerId
-      );
-      updateDoc(playerRef, { vote: null });
+async selectVote(value: string): Promise<void> {
+  const playerRef = this.roomService.getPlayerDoc(this.roomId, this.playerId);
 
-      showToast(this.messageService, {
-        severity: 'success',
-        summary: 'Vote removed',
-        detail: 'Your vote was removed successfully.',
-        life: 1800
-      });
+  if (value === BIN || value === this.selectedVote) {
+    this.selectedVote = null;
+    await updateDoc(playerRef, { vote: null });
+    showToast(this.messageService, TOAST_MESSAGES.vote.removed);
 
-      return;
+    const othersVoted = this.players
+      .filter(player => player.id !== this.playerId)
+      .some(hasPlayerVoted);
+
+    if (!othersVoted) {
+      const roomRef = this.roomService.getRoomDoc(this.roomId);
+      await updateDoc(roomRef, { showVotes: false });
+      this.showVotes = false;
     }
-    this.selectedVote = value;
-    const playerRef = this.roomService.getPlayerDoc(this.roomId, this.playerId);
-    updateDoc(playerRef, { vote: value });
+
+    return;
   }
 
-  openNameDialog(title: string, initialValue: string, callback: (name: string | null) => void) {
-    this.tempName = initialValue;
-    this.nameDialogTitle = title;
-    this.nameDialogCallback = callback;
-    this.showNameDialog = true;
-  }
-
-  onDialogConfirm() {
-    if (this.nameDialogCallback) {
-      this.nameDialogCallback(this.tempName ? this.tempName.trim() : null);
-    }
-    this.showNameDialog = false;
-  }
-
-  onDialogCancel() {
-    if (this.nameDialogCallback) {
-      this.nameDialogCallback(null);
-    }
-    this.showNameDialog = false;
-  }
+  this.selectedVote = value;
+  await updateDoc(playerRef, { vote: value });
+}
 
   async renamePlayer(): Promise<void> {
     this.openNameDialog('Enter your new name', '', async (newName) => {
       if (!newName || newName === this.userName) return;
+
       const trimmed = newName.trim();
       if (!trimmed) return;
+
       const playerRef = this.roomService.getPlayerDoc(this.roomId, this.playerId);
       await updateDoc(playerRef, { name: trimmed });
       this.userName = trimmed;
-      localStorage.setItem('userName', trimmed);
+      localStorage.setItem(STORAGE_KEYS.userName, trimmed);
 
-      showToast(this.messageService, {
-        severity: 'success',
-        summary: 'Name changed',
-        detail: 'Your name has been updated successfully.',
-        life: 2000
-      });
+      showToast(this.messageService, TOAST_MESSAGES.player.nameChanged);
     });
   }
 
@@ -185,17 +136,69 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.selectedVote = null;
     this.averageVote = null;
 
-    showToast(this.messageService, {
-      severity: 'info',
-      summary: 'Votes cleared',
-      detail: 'All votes were cleared.',
-      life: 1800
-    });
+    showToast(this.messageService, TOAST_MESSAGES.vote.cleared);
   }
 
   toggleReveal(): void {
     const roomRef = this.roomService.getRoomDoc(this.roomId);
     updateDoc(roomRef, { showVotes: !this.showVotes });
+  }
+
+  openNameDialog(title: string, initialValue: string, callback: (name: string | null) => void): void {
+    this.tempName = initialValue;
+    this.nameDialogTitle = title;
+    this.nameDialogCallback = callback;
+    this.showNameDialog = true;
+  }
+
+  onDialogConfirm(): void {
+    if (this.nameDialogCallback) {
+      this.nameDialogCallback(this.tempName ? this.tempName.trim() : null);
+    }
+    this.showNameDialog = false;
+  }
+
+  onDialogCancel(): void {
+    if (this.nameDialogCallback) {
+      this.nameDialogCallback(null);
+    }
+    this.showNameDialog = false;
+  }
+
+  private async loadRoom(): Promise<void> {
+    this.roomId = this.route.snapshot.paramMap.get('roomId')!;
+    const roomExists = await this.roomService.roomExists(this.roomId);
+    if (!roomExists) {
+      this.router.navigate(['/NotFound']);
+      throw new Error('Room not found');
+    }
+  }
+
+  private async setupUser(): Promise<void> {
+    const { id, name } = await this.initializeUser();
+    this.playerId = id;
+    this.userName = name;
+  }
+
+  private async joinRoom(): Promise<void> {
+    await this.roomService.createPlayer(this.roomId, {
+      id: this.playerId,
+      name: this.userName,
+      joinedAt: new Date(),
+      vote: null,
+      lastActive: Date.now(),
+    });
+  }
+
+  private startHeartbeat(): void {
+    const playerRef = this.roomService.getPlayerDoc(this.roomId, this.playerId);
+    this.heartbeatInterval = setInterval(() => {
+      updateDoc(playerRef, { lastActive: Date.now() });
+    }, HEARTBEAT_INTERVAL_MS);
+  }
+
+  private listenForUnload(): void {
+    window.addEventListener('beforeunload', this.handleLeave);
   }
 
   private async initializeUser(): Promise<{ id: string; name: string }> {
@@ -208,11 +211,10 @@ export class RoomComponent implements OnInit, OnDestroy {
       });
       if (!inputName) {
         this.router.navigate(['/']);
-
         return { id, name: '' };
       }
       name = inputName.trim();
-      localStorage.setItem('userName', name);
+      localStorage.setItem(STORAGE_KEYS.userName, name);
     }
 
     return { id, name };
@@ -224,9 +226,7 @@ export class RoomComponent implements OnInit, OnDestroy {
       const data = docSnap.data();
       if (!data) return;
       this.showVotes = !!data[FIRESTORE_FIELDS.showVotes];
-      this.voteValues = Array.isArray(data[FIRESTORE_FIELDS.voteValues])
-        ? data[FIRESTORE_FIELDS.voteValues]
-        : [];
+      this.voteValues = Array.isArray(data[FIRESTORE_FIELDS.voteValues]) ? data[FIRESTORE_FIELDS.voteValues] : [];
       this.showVotes ? this.calculateAverage() : (this.averageVote = null);
     });
   }
@@ -234,14 +234,10 @@ export class RoomComponent implements OnInit, OnDestroy {
   private subscribeToPlayers(): void {
     const playersRef = this.roomService.getPlayersCollection(this.roomId);
     this.unsubscribePlayers = onSnapshot(playersRef, (snapshot: any) => {
-      this.players = snapshot.docs.map(
-        (doc: any) => ({ id: doc.id, ...doc.data() } as Player)
-      );
-
+      this.players = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Player));
       if (this.votedCount === 0) {
         this.showVotes = false;
       }
-
       if (this.showVotes) this.calculateAverage();
     });
   }

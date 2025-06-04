@@ -1,0 +1,30 @@
+@import 'src/app/shared/styles/_colors.scss';
+
+.p-toast {
+  z-index: 99999;
+}
+
+.custom-toast.p-toast-message {
+  border: 2px solid $color-gold-light !important;
+  border-radius: 14px !important;
+  background: $color-toast-bg !important;
+  color: $color-toast-font !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+.custom-toast .p-toast-icon-close,
+.custom-toast .p-toast-summary {
+  color: $color-toast-font !important;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.custom-toast .p-toast-detail {
+  color: $color-toast-detail !important;
+  font-size: 1em;
+}
+
+.custom-toast .p-toast-message-icon {
+  color: $color-gold-light !important;
+  font-size: 1.5em;
+}

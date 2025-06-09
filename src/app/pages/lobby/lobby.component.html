@@ -1,38 +1,28 @@
-<div class="join-room">
-  <h1 class="title">Create a Planning Poker Room</h1>
-
-  <div class="input-group">
-    <label for="name">Your Name: <span class="required">*</span></label>
-    <input
-      id="name"
-      type="text"
-      placeholder="Enter your name"
-      [(ngModel)]="name"
-      required
-    />
+<div class="lobby-cards">
+  <div class="card">
+    <img src="/create.png" class="lobby-card-icon" alt="Create" />
+    <h2 class="title">Create Room</h2>
+    <p>Create a table, invite your team, and let the estimation games begin!</p>
+    <div class="action-buttons">
+      <button routerLink="/create-room">Create Room</button>
+    </div>
   </div>
 
-  <div class="input-group">
-    <label for="room">Room Name: <span class="required">*</span></label>
-    <input
-      id="room"
-      type="text"
-      placeholder="Enter room code"
-      [(ngModel)]="roomCode"
-      required
-    />
+  <div class="card">
+    <img src="/join.png" class="lobby-card-icon" alt="Join" />
+    <h2 class="title">Join Room</h2>
+    <p>Got an invite? Jump into the action and play your cards!</p>
+    <div class="action-buttons">
+      <button routerLink="/join-room">Join Room</button>
+    </div>
   </div>
 
-  <div class="input-group">
-    <label for="votes">Voting Cards:</label>
-    <input id="votes" [(ngModel)]="customVotes" placeholder="e.g. 1,2,3,5,8" />
-  </div>
-
-  <div class="action-buttons">
-    <button (click)="joinRoom()" [disabled]="!name || !roomCode">
-      Create Room
-    </button>
-    <button (click)="goToJoinRoom()">Join Room</button>
-    <img src="/dice.webp" alt="" (click)="generateRoomCode()" />
+  <div class="card">
+    <img src="/rooms.png" class="lobby-card-icon" alt="Rooms" />
+    <h2 class="title">Find Room</h2>
+    <p>Not sure where to go? Check out all open tables and find your squad.</p>
+    <div class="action-buttons">
+      <button routerLink="/list-rooms">Find Room</button>
+    </div>
   </div>
 </div>

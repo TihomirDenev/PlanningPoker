@@ -38,7 +38,13 @@
         >
           {{ showVotes ? "🙈 Hide Votes" : "🔒 Reveal Votes" }}
         </button>
-        <button class="reset" (click)="resetVotes()">🗑️ Clear Votes</button>
+        <button
+          class="reset"
+          (click)="resetVotes()"
+          [disabled]="votedCount === 0"
+        >
+          🗑️ Clear Votes
+        </button>
       </div>
     </div>
 

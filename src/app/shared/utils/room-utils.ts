@@ -1,4 +1,4 @@
-import { MessageService, Message } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 
 import { Player } from 'src/app/shared/models/player.model';
 import { STORAGE_KEYS } from 'src/app/shared/constants/constants';

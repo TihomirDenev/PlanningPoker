@@ -30,12 +30,42 @@
     padding: 1rem;
     border-top: 1px solid $color-gold-light;
     color: $color-gold-light;
-    text-align: center;
-    background-color: $color-bg;
 
-    img {
+    .footer-logo {
+      width: 40px;
+      height: 40px;
+      transition: transform 0.18s, filter 0.18s;
+      filter: drop-shadow(0 2px 6px $color-gold-light);
+
+      &:hover {
+        transform: scale(1.08) rotate(-7deg);
+        filter: brightness(1.2) drop-shadow(0 4px 14px $color-gold);
+      }
+    }
+
+    .footer-logo.sparkle {
       width: 50px;
       height: 50px;
+      animation: sparkle 2.2s infinite;
+      animation-timing-function: ease-in-out;
     }
+
+    .footer-team {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+  }
+}
+
+@keyframes sparkle {
+
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+
+  50% {
+    filter: brightness(1.4) drop-shadow(0 0 10px $color-gold-light);
   }
 }

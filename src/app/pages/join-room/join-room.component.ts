@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -11,7 +11,7 @@ import { STORAGE_KEYS, ROUTE_ROOM_BASE } from 'src/app/shared/constants/constant
 
 @Component({
   standalone: true,
-  imports: [FormsModule, ToastModule],
+  imports: [FormsModule, ToastModule, RouterModule],
   selector: 'app-join-room',
   templateUrl: './join-room.component.html',
   styleUrls: ['./join-room.component.scss'],
@@ -37,13 +37,6 @@ export class JoinRoomComponent {
     }
 
     localStorage.setItem(STORAGE_KEYS.userName, this.name);
-
-    // Optionally, you might want to register the player here as well.
-
     this.router.navigate([ROUTE_ROOM_BASE, this.roomCode]);
-  }
-
-  backToLobby(): void {
-    this.router.navigate(['/']);
   }
 }

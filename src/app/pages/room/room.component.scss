@@ -33,7 +33,7 @@
       button.selected {
         color: $color-gold-light;
         font-weight: bold;
-        box-shadow: 0 0 0 2px rgba(245, 215, 116, 0.5);
+        box-shadow: 0 0 0 2px transparentize($color-gold-light, 0.5);
         background-color: $color-badge;
         border-color: $color-gold-light;
       }
@@ -70,7 +70,7 @@
     padding: 0.75rem 1rem;
     border: 1px solid $color-gold-border;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
+    background: transparentize($color-white, 0.95);
     color: $color-light;
     font-weight: bold;
 
@@ -95,17 +95,17 @@
 button {
   margin: 0.3rem;
   padding: 0.5rem 1rem;
-  border: 2px solid #f5d774;
+  border: 2px solid $color-gold-light;
   border-radius: 8px;
-  color: #f5d774;
+  color: $color-gold-light;
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s ease-in-out;
-  background-color: #072c1e;
+  background-color: $color-button-bg;
 
   &:hover {
-    color: #fff;
-    background-color: #d4af37;
+    color: $color-toast-detail;
+    background-color: $color-gold;
   }
 
   &:active {
@@ -114,22 +114,29 @@ button {
 }
 
 button.reveal {
-  color: white;
-  background-color: #28a745;
-  border-color: #28a745;
+  color: $color-white;
+  background-color: $color-green;
+  border-color: $color-green;
 }
 
 button.reveal:disabled {
   cursor: not-allowed;
   opacity: 0.5;
   background-color: lighten($color-green, 10%);
-  border-color: lighten($color-green, 10%);
+  border-color: lighten($color-green-light, 10%);
+}
+
+button.reset:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: lighten($color-bordeaux, 10%);
+  border-color: lighten($color-red, 10%);
 }
 
 button.reset {
-  color: white;
-  background-color: #dc3545;
-  border-color: #dc3545;
+  color: $color-white;
+  background-color: $color-red;
+  border-color: $color-red;
 }
 
 .average-display {
@@ -160,19 +167,19 @@ button.reset {
     display: none;
     width: 210px;
     padding: 1rem 1.5rem;
-    border: 2px solid #ffd700;
+    border: 2px solid $color-yellow;
     border-radius: 12px;
-    background: #143d3d;
-    color: #fff;
+    background: $color-bg;
+    color: $color-white;
     font-family: 'Segoe UI', sans-serif;
     text-align: center;
     transform: translateX(-50%);
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 10px transparentize($color-yellow, 0.7);
 
     h3 {
       margin-top: 0;
       margin-bottom: 0.5rem;
-      color: #ffd700;
+      color: $color-yellow;
       font-size: 1.2rem;
     }
 
@@ -182,11 +189,11 @@ button.reset {
     }
 
     .yes {
-      color: #00e676;
+      color: $color-green-light;
     }
 
     .no {
-      color: #ff5252;
+      color: $color-red-light;
     }
   }
 
@@ -197,11 +204,11 @@ button.reset {
 
 .vote-deck button.bin-btn {
   transition: 0.2s;
-  background-color: #650808;
+  background-color: $color-bordeaux;
 }
 
 .vote-deck button.bin-btn:hover {
-  background: #f80000;
+  background: $color-red;
 }
 
 button:disabled {
@@ -272,47 +279,47 @@ button:disabled {
 
 :host ::ng-deep .p-dialog {
   justify-content: center;
-  border: 2px solid #ffe985;
-  background: #23272b;
+  border: 2px solid $color-toast-font;
+  background: $color-dark;
 }
 
 :host ::ng-deep .p-dialog .p-dialog-header {
   justify-content: center;
-  border-bottom: 1px solid #ffe985;
-  background: #23272b;
-  color: #ffe985;
+  border-bottom: 1px solid $color-toast-font;
+  background: $color-dark;
+  color: $color-toast-font;
 }
 
 :host ::ng-deep .p-dialog .p-dialog-content {
-  background: #23272b;
-  color: #ffe985;
+  background: $color-dark;
+  color: $color-toast-font;
 }
 
 :host ::ng-deep .p-inputtext {
   width: 100%;
   margin: 1.2em 0 0.7em 0;
-  border: 1.5px solid #ffe985;
+  border: 1.5px solid $color-toast-font;
   border-radius: 8px;
-  background: #16181c;
-  color: #ffe985;
+  background: $color-dark-hover;
+  color: $color-toast-font;
   font-size: 1em;
 }
 
 :host ::ng-deep .p-button {
   border: none;
   border-radius: 7px;
-  background: #ffe985;
-  color: #23272b;
+  background: $color-toast-font;
+  color: $color-dark;
   font-weight: bold;
 }
 
 :host ::ng-deep .p-button.p-button-text {
   background: transparent;
-  color: #ffe985;
+  color: $color-toast-font;
 }
 
 :host ::ng-deep .p-inputtext:focus {
   box-shadow: none !important;
   outline: none !important;
-  border-color: #ffe985 !important;
+  border-color: $color-toast-font !important;
 }

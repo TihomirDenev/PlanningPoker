@@ -70,6 +70,7 @@ export class RoomService {
   }
 
   async deletePlayer(roomId: string, userName: string): Promise<void> {
+    if (!roomId || !userName) return;
     const playerRef = this.getPlayerDoc(roomId, userName);
     await deleteDoc(playerRef);
   }

@@ -1,0 +1,27 @@
+<div class="all-rooms">
+  <ng-container *ngIf="rooms$ | async as rooms">
+    <ng-container *ngIf="rooms && rooms.length > 0; else noRooms">
+      <div class="card" *ngFor="let room of rooms">
+        <h3>{{ room.data?.name || room.roomId }}</h3>
+        <p><strong>Room Name:</strong> {{ room.roomId }}</p>
+        <p><strong>Participants:</strong> {{ room.playerCount }}</p>
+        <div class="action-buttons">
+          <button [routerLink]="['/room', room.roomId]">Join Room</button>
+          <button routerLink="/">Back to Lobby</button>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noRooms>
+      <div class="card">
+        <h3>No rooms yet!</h3>
+        <p>No tables open yet. Deal the first hand and rally your squad!</p>
+        <div class="action-buttons">
+          <button routerLink="/create-room" class="create-btn">
+            Create Room
+          </button>
+          <button routerLink="/">Back to Lobby</button>
+        </div>
+      </div>
+    </ng-template>
+  </ng-container>
+</div>

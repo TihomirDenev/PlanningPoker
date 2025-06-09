@@ -1,5 +1,5 @@
 <div class="card">
-  <h1 class="title">Join a Planning Poker Room</h1>
+  <h1 class="title">Create a Planning Poker Room</h1>
 
   <div class="input-group">
     <label for="name">Your Name: <span class="required">*</span></label>
@@ -23,10 +23,16 @@
     />
   </div>
 
+  <div class="input-group">
+    <label for="votes">Voting Cards:</label>
+    <input id="votes" [(ngModel)]="customVotes" placeholder="e.g. 1,2,3,5,8" />
+  </div>
+
   <div class="action-buttons">
     <button (click)="joinRoom()" [disabled]="!name || !roomCode">
-      Join Room
+      Create Room
     </button>
-    <button routerLink="/">Back to Lobby</button>
+    <button (click)="navigateToLobby()">Back To Lobby</button>
+    <img src="/dice.webp" alt="" (click)="generateRoomCode()" />
   </div>
 </div>

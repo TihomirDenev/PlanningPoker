@@ -3,7 +3,7 @@
   <a href="https://planning-poker-beta.vercel.app/" target="_blank">Check it out on Web</a>
 </h2>
 <div align="center">
-  <img src="public/JJLogo.png" alt="Formula One" style="height: 100px;" />
+  <img src="public/JJLogo.png" alt="JJ Logo" style="height: 100px;" />
 </div>
 
 # 📝 Description

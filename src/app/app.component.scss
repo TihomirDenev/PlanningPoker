@@ -6,15 +6,13 @@
   min-height: 97.9vh;
   background-color: $color-bg;
 
-  .card {
-    font-size: 2rem;
-  }
-
   .main-header {
     border-bottom: 1px solid $color-gold-light;
-    color: $color-gold-light;
     text-align: center;
-    background-color: $color-bg;
+
+    .card {
+      font-size: 2rem;
+    }
   }
 
   .main-content {

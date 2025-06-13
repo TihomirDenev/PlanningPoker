@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-import { AllRoomsService } from 'src/app/shared/services/all-rooms.service';
 import { Observable } from 'rxjs';
+
+import { AllRoomsService } from 'src/app/shared/services/all-rooms.service';
+import { RoomOverview } from 'src/app/shared/models/room-overview.model';
 
 @Component({
   selector: 'app-all-rooms',
@@ -13,7 +15,7 @@ import { Observable } from 'rxjs';
   styleUrl: './all-rooms.component.scss'
 })
 export class AllRoomsComponent implements OnInit {
-  rooms$!: Observable<{ roomId: string; data: any; playerCount: number }[]>;
+  rooms$!: Observable<RoomOverview[]>;
 
   constructor(public allRoomsService: AllRoomsService) {}
 

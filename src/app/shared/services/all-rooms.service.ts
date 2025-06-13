@@ -6,13 +6,14 @@ import { Observable, combineLatest } from 'rxjs';
 import { getFirestore, collection, onSnapshot, Firestore } from 'firebase/firestore';
 
 import { COLLECTIONS } from 'src/app/shared/constants/constants';
+import { RoomOverview } from 'src/app/shared/models/room-overview.model';
 
 @Injectable({ providedIn: 'root' })
 export class AllRoomsService {
   private app = inject(FirebaseApp);
   private firestore: Firestore = getFirestore(this.app);
 
-getAllRoomsLive(): Observable<{ roomId: string; data: any; playerCount: number }[]> {
+getAllRoomsLive(): Observable<RoomOverview[]> {
   return new Observable(observer => {
     observer.next([]);
     const roomsCol = collection(this.firestore, COLLECTIONS.rooms);
@@ -26,7 +27,7 @@ getAllRoomsLive(): Observable<{ roomId: string; data: any; playerCount: number }
         const roomId = roomDoc.id;
         const data = roomDoc.data();
         const playersCol = collection(this.firestore, `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}`);
-        return new Observable<{ roomId: string; data: any; playerCount: number }>(playerObs => {
+        return new Observable<RoomOverview>(playerObs => {
           const unsubscribePlayers = onSnapshot(playersCol, playerSnap => {
             playerObs.next({
               roomId,

@@ -1,4 +1,6 @@
 @import 'src/styles.scss';
+@import 'src/app/shared/styles/_buttons.scss';
+@import 'src/app/shared/styles/_primeng.scss';
 
 .header-wrapper {
   display: flex;
@@ -11,31 +13,42 @@
     align-items: center;
     max-width: 80rem;
 
-    img {
-      max-width: 10rem;
-    }
+    .hover-card-wrapper {
+      position: relative;
 
-    .vote-deck {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      min-width: 43rem;
-      margin: 1.5rem 0;
-
-      button {
-        min-width: 60px;
-        height: 60px;
-        margin: 0.5rem;
-        border-radius: 10px;
-        font-size: 1.3rem;
+      img {
+        max-width: 10rem;
       }
 
-      button.selected {
-        color: $color-gold-light;
-        font-weight: bold;
-        box-shadow: 0 0 0 2px transparentize($color-gold-light, 0.5);
-        background-color: $color-badge;
-        border-color: $color-gold-light;
+      .room-details-card {
+        position: absolute;
+        top: 120%;
+        left: 50%;
+        z-index: 999;
+        display: none;
+        width: 210px;
+        padding: 1rem 1.5rem;
+        border: 2px solid $color-yellow;
+        border-radius: 12px;
+        text-align: center;
+        transform: translateX(-50%);
+        box-shadow: 0 0 10px transparentize($color-yellow, 0.7);
+
+        h3 {
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+          color: $color-yellow;
+          font-size: 1.2rem;
+        }
+
+        p {
+          margin: 0.3rem 0;
+          font-size: 0.95rem;
+        }
+      }
+
+      &:hover .room-details-card {
+        display: block;
       }
     }
 
@@ -51,6 +64,30 @@
         font-size: 1.1rem;
       }
     }
+
+    .vote-deck {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      min-width: 43rem;
+      margin: 1.5rem 0;
+    }
+  }
+}
+
+.average-display {
+  min-height: 2rem;
+  margin: 1rem;
+  color: $color-gold-light;
+  font-size: 1.5rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  visibility: hidden;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
   }
 }
 
@@ -60,6 +97,11 @@
   margin-bottom: 5rem;
   padding: 0;
   list-style: none;
+
+  li.me {
+    border: 2px solid $color-gold;
+    font-weight: bold;
+  }
 
   li {
     display: flex;
@@ -87,155 +129,17 @@
   }
 }
 
-.player-list li.me {
-  border: 2px solid $color-gold;
-  font-weight: bold;
-}
-
-button {
-  margin: 0.3rem;
-  padding: 0.5rem 1rem;
-  border: 2px solid $color-gold-light;
-  border-radius: 8px;
-  color: $color-gold-light;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
-  background-color: $color-button-bg;
-
-  &:hover {
-    color: $color-toast-detail;
-    background-color: $color-gold;
-  }
-
-  &:active {
-    transform: scale(0.97);
-  }
-}
-
-button.reveal {
-  color: $color-white;
-  background-color: $color-green;
-  border-color: $color-green;
-}
-
-button.reveal:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  background-color: lighten($color-green, 10%);
-  border-color: lighten($color-green-light, 10%);
-}
-
-button.reset:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  background-color: lighten($color-bordeaux, 10%);
-  border-color: lighten($color-red, 10%);
-}
-
-button.reset {
-  color: $color-white;
-  background-color: $color-red;
-  border-color: $color-red;
-}
-
-.average-display {
-  min-height: 2rem;
-  margin: 1rem;
-  color: $color-gold-light;
-  font-size: 1.5rem;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-  visibility: hidden;
-
-  &.visible {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-
-.hover-card-wrapper {
-  position: relative;
-  display: inline-block;
-
-  .room-details-card {
-    position: absolute;
-    top: 120%;
-    left: 50%;
-    z-index: 999;
-    display: none;
-    width: 210px;
-    padding: 1rem 1.5rem;
-    border: 2px solid $color-yellow;
-    border-radius: 12px;
-    background: $color-bg;
-    color: $color-white;
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    transform: translateX(-50%);
-    box-shadow: 0 0 10px transparentize($color-yellow, 0.7);
-
-    h3 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      color: $color-yellow;
-      font-size: 1.2rem;
-    }
-
-    p {
-      margin: 0.3rem 0;
-      font-size: 0.95rem;
-    }
-
-    .yes {
-      color: $color-green-light;
-    }
-
-    .no {
-      color: $color-red-light;
-    }
-  }
-
-  &:hover .room-details-card {
-    display: block;
-  }
-}
-
-.vote-deck button.bin-btn {
-  transition: 0.2s;
-  background-color: $color-bordeaux;
-}
-
-.vote-deck button.bin-btn:hover {
-  background: $color-red;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  background-color: lighten($color-gold, 10%);
-  border-color: lighten($color-gold, 10%);
-}
-
-
 @media (max-width: 1024px) {
   .header-wrapper {
     padding-bottom: 0;
 
     .header {
-      align-items: center;
-      gap: 2rem;
-      flex-direction: column;
       padding: 1rem;
 
       .vote-deck {
-        flex-wrap: wrap;
-        justify-content: center;
         min-width: unset;
 
         button {
-          width: 50px;
           height: 50px;
           font-size: 1rem;
         }
@@ -249,14 +153,12 @@ button:disabled {
           width: 100%;
           max-width: 200px;
           padding: 0.4rem 0.8rem;
-          font-size: 0.9rem;
         }
       }
     }
   }
 
   .average-display {
-    margin: 0.5rem;
     font-size: 1.2rem;
   }
 
@@ -275,51 +177,4 @@ button:disabled {
   .hover-card-wrapper {
     display: none;
   }
-}
-
-:host ::ng-deep .p-dialog {
-  justify-content: center;
-  border: 2px solid $color-toast-font;
-  background: $color-dark;
-}
-
-:host ::ng-deep .p-dialog .p-dialog-header {
-  justify-content: center;
-  border-bottom: 1px solid $color-toast-font;
-  background: $color-dark;
-  color: $color-toast-font;
-}
-
-:host ::ng-deep .p-dialog .p-dialog-content {
-  background: $color-dark;
-  color: $color-toast-font;
-}
-
-:host ::ng-deep .p-inputtext {
-  width: 100%;
-  margin: 1.2em 0 0.7em 0;
-  border: 1.5px solid $color-toast-font;
-  border-radius: 8px;
-  background: $color-dark-hover;
-  color: $color-toast-font;
-  font-size: 1em;
-}
-
-:host ::ng-deep .p-button {
-  border: none;
-  border-radius: 7px;
-  background: $color-toast-font;
-  color: $color-dark;
-  font-weight: bold;
-}
-
-:host ::ng-deep .p-button.p-button-text {
-  background: transparent;
-  color: $color-toast-font;
-}
-
-:host ::ng-deep .p-inputtext:focus {
-  box-shadow: none !important;
-  outline: none !important;
-  border-color: $color-toast-font !important;
 }

@@ -1,0 +1,131 @@
+@import 'src/app/shared/styles/_colors.scss';
+
+.card {
+  width: 100%;
+  max-width: 35rem;
+  margin: 2.5rem 0;
+  padding: 2rem;
+  padding-top: 1rem;
+  border-radius: 16px;
+  background: linear-gradient(120deg, $color-gold-very-light 0%, $color-gold 60%, $color-gold-light 100%);
+  color: $color-toast-bg;
+  text-align: center;
+
+  .title {
+    margin-bottom: 1.5rem;
+    color: $color-dark;
+    font-size: 1.8rem;
+    word-break: break-word;
+  }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+
+    label {
+      width: 34%;
+      font-weight: bold;
+
+      .required {
+        color: $color-red;
+      }
+    }
+
+    input {
+      box-sizing: border-box;
+      width: 64%;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+
+    button {
+      margin: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      color: $color-light;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      background-color: $color-toast-bg;
+
+      &:hover {
+        transform: scale(1.01);
+        background-color: $color-dark-hover;
+      }
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    img {
+      width: 3rem;
+      margin: 0.5rem 1rem;
+      padding-left: 0.5rem;
+      cursor: pointer;
+
+      &:hover {
+        transform: rotate(-16deg) scale(1.1);
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    width: 20rem;
+    padding: 1rem;
+
+    .title {
+      font-size: 1.2rem;
+    }
+
+    .input-group {
+      align-items: stretch;
+      flex-direction: column;
+
+      label,
+      input {
+        width: 100%;
+      }
+
+      label {
+        margin-bottom: 0.2rem;
+        text-align: left;
+      }
+
+      input {
+        margin: 0 0 0.7rem 0;
+      }
+    }
+
+    .action-buttons {
+      flex-direction: column;
+
+      button,
+      img {
+        width: 100%;
+        margin: 0.3rem 0;
+      }
+
+      img {
+        max-width: 50px;
+        align-self: center;
+      }
+    }
+  }
+}

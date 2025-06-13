@@ -1,0 +1,78 @@
+button {
+  margin: 0.3rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid $color-gold-light;
+  border-radius: 8px;
+  color: $color-gold-light;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  background-color: $color-button-bg;
+
+  &:hover {
+    color: $color-toast-detail;
+    background-color: $color-gold;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+button.reveal {
+  color: $color-white;
+  background-color: $color-green;
+  border-color: $color-green;
+}
+
+button.reset {
+  color: $color-white;
+  background-color: $color-red;
+  border-color: $color-red;
+}
+
+.vote-deck button {
+  min-width: 60px;
+  height: 60px;
+  margin: 0.5rem;
+  border-radius: 10px;
+  font-size: 1.3rem;
+}
+
+.vote-deck button.selected {
+  color: $color-gold-light;
+  font-weight: bold;
+  box-shadow: 0 0 0 2px transparentize($color-gold-light, 0.5);
+  background-color: $color-badge;
+  border-color: $color-gold-light;
+}
+
+.vote-deck button.bin-btn {
+  transition: 0.2s;
+  background-color: $color-bordeaux;
+}
+
+.vote-deck button.bin-btn:hover {
+  background: $color-red;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: lighten($color-gold, 10%);
+  border-color: lighten($color-gold, 10%);
+}
+
+button.reset:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: lighten($color-bordeaux, 10%);
+  border-color: lighten($color-red, 10%);
+}
+
+button.reveal:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: lighten($color-green, 10%);
+  border-color: lighten($color-green-light, 10%);
+}

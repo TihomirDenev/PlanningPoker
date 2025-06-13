@@ -1,0 +1,46 @@
+::ng-deep .p-dialog {
+  justify-content: center;
+  border: 2px solid $color-toast-font;
+  background: $color-dark;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  justify-content: center;
+  border-bottom: 1px solid $color-toast-font;
+  background: $color-dark;
+  color: $color-toast-font;
+}
+
+::ng-deep .p-dialog .p-dialog-content {
+  background: $color-dark;
+  color: $color-toast-font;
+}
+
+::ng-deep .p-inputtext {
+  width: 100%;
+  margin: 1.2em 0 0.7em 0;
+  border: 1.5px solid $color-toast-font;
+  border-radius: 8px;
+  background: $color-dark-hover;
+  color: $color-toast-font;
+  font-size: 1em;
+}
+
+::ng-deep .p-inputtext:focus {
+  box-shadow: none !important;
+  outline: none !important;
+  border-color: $color-toast-font !important;
+}
+
+:host ::ng-deep .p-button {
+  border: none;
+  border-radius: 7px;
+  background: $color-toast-font;
+  color: $color-dark;
+  font-weight: bold;
+}
+
+:host ::ng-deep .p-button.p-button-text {
+  background: transparent;
+  color: $color-toast-font;
+}

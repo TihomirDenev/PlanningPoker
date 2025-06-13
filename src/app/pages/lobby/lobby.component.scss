@@ -1,31 +1,28 @@
-@import 'src/app/pages/create-room/create-room.component.scss';
+@import 'src/app/shared/styles/_card.scss';
 
 .lobby-cards {
   display: flex;
+  align-items: center;
   gap: 3rem;
 
   .card {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
     width: 22rem;
-    padding: 0 2rem;
+    padding: 2rem;
+    transition: box-shadow 0.22s cubic-bezier(.22, .61, .36, 1), transform 0.32s cubic-bezier(.22, .61, .36, 1);
 
     .lobby-card-icon {
       width: 5rem;
-      margin-top: 1rem;
     }
 
-    .action-buttons {
-      margin-top: auto;
-      margin-bottom: 2rem;
+    &:hover {
+      transform: translateY(-3px) scale(1.015);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.17), 0 1.5px 6px rgba(0, 0, 0, 0.08);
     }
   }
 }
 
 @media (max-width: 1230px) {
   .lobby-cards {
-    align-items: center;
     gap: 0;
     flex-direction: column;
 
@@ -40,11 +37,8 @@
   }
 }
 
-.card {
-  transition: box-shadow 0.22s cubic-bezier(.22, .61, .36, 1), transform 0.32s cubic-bezier(.22, .61, .36, 1);
-
-  &:hover {
-    transform: translateY(-3px) scale(1.015);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.17), 0 1.5px 6px rgba(0, 0, 0, 0.08);
+@media (max-width: 520px) {
+  .card {
+    width: calc(100% - 4rem) !important;
   }
 }

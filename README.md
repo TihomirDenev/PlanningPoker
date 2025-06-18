@@ -80,7 +80,7 @@
 ```
 src/
 ├── app/
-│   ├── pages/                 # Application pages
+│   ├── pages/                # Application pages
 │   │   ├── lobby/            # Main lobby page
 │   │   ├── create-room/      # Room creation
 │   │   ├── join-room/        # Room joining
@@ -97,7 +97,7 @@ src/
 │   ├── app.component.*       # Root component
 │   ├── app.routes.ts         # Application routing
 │   └── app.config.ts         # Application configuration
-├── environments/              # Environment configurations
+├── environments/             # Environment configurations
 └── main.ts                   # Application entry point
 ```
 

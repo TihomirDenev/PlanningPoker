@@ -170,6 +170,9 @@ export class RoomComponent implements OnInit, OnDestroy {
   private async initializeRoom(): Promise<void> {
     await this.loadRoom();
     await this.setupUser();
+
+    if (!this.userName || !this.playerId) return;
+
     await this.joinRoom();
 
     this.subscribeToRoom();

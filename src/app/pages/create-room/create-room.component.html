@@ -29,10 +29,10 @@
   </div>
 
   <div class="action-buttons">
-    <button (click)="joinRoom()" [disabled]="!name || !roomCode">
+    <button (click)="createRoom()" [disabled]="!name || !roomCode">
       Create Room
     </button>
     <button (click)="navigateToLobby()">Back To Lobby</button>
-    <img src="/dice.webp" alt="" (click)="generateRoomCode()" />
+    <img src="/dice.webp" alt="Dice" (click)="generateRoomCode()" />
   </div>
 </div>

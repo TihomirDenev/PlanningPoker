@@ -22,11 +22,11 @@ export class CreateRoomComponent {
   roomCode = '';
   customVotes = '';
 
-  private router = inject(Router);
-  private roomService = inject(RoomService);
-  private messageService = inject(MessageService);
+  readonly router = inject(Router);
+  readonly roomService = inject(RoomService);
+  readonly messageService = inject(MessageService);
 
-  async joinRoom(): Promise<void> {
+  async createRoom(): Promise<void> {
     const roomAlreadyExists = await this.roomService.roomExists(this.roomCode);
 
     if (!this.name || !this.roomCode) {

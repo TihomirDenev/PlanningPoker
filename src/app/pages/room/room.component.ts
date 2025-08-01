@@ -14,8 +14,9 @@ import { MessageService } from 'primeng/api';
 import { RoomService } from 'src/app/shared/services/room.service';
 import { Player } from 'src/app/shared/models/player.model';
 import { BIN, FIRESTORE_FIELDS, HEARTBEAT_INTERVAL_MS, STORAGE_KEYS } from 'src/app/shared/constants/constants';
-import { calculateAverageVote, getLocalPlayerInfo, hasPlayerVoted, showToast } from 'src/app/shared/utils/room-utils';
+import { calculateAverageVote, hasPlayerVoted, showToast } from 'src/app/shared/utils/room-utils';
 import { TOAST_MESSAGES } from 'src/app/shared/constants/toast.constants';
+import { PlayerService } from 'src/app/shared/services/player.service';
 
 @Component({
   standalone: true,
@@ -46,22 +47,14 @@ export class RoomComponent implements OnInit, OnDestroy {
   private unsubscribePlayers: () => void = () => {};
   private unsubscribeRoom: () => void = () => {};
 
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private roomService = inject(RoomService);
-  private messageService = inject(MessageService);
+  readonly route = inject(ActivatedRoute);
+  readonly router = inject(Router);
+  readonly roomService = inject(RoomService);
+  readonly messageService = inject(MessageService);
+  readonly playerService = inject(PlayerService);
 
-  async ngOnInit(): Promise<void> {
-    await this.loadRoom();
-    await this.setupUser();
-    await this.joinRoom();
-
-    this.subscribeToRoom();
-    this.subscribeToPlayers();
-    this.subscribeToMyVote();
-
-    this.startHeartbeat();
-    this.listenForUnload();
+  ngOnInit(): void {
+    this.initializeRoom();
   }
 
   ngOnDestroy(): void {
@@ -83,37 +76,42 @@ export class RoomComponent implements OnInit, OnDestroy {
   get sortedPlayers(): Player[] {
     if (this.showVotes) {
       return [...this.players]
-        .filter(player => player.vote !== null && player.vote !== undefined && player.vote !== '')
+        .filter(
+          (player) =>
+            player.vote !== null &&
+            player.vote !== undefined &&
+            player.vote !== ''
+        )
         .sort((a, b) => Number(a.vote) - Number(b.vote))
-        .concat(this.players.filter(player => !player.vote));
+        .concat(this.players.filter((player) => !player.vote));
     }
     return this.players;
   }
 
-async selectVote(value: string): Promise<void> {
-  const playerRef = this.roomService.getPlayerDoc(this.roomId, this.playerId);
+  async selectVote(value: string): Promise<void> {
+    const playerRef = this.roomService.getPlayerDoc(this.roomId, this.playerId);
 
-  if (value === BIN || value === this.selectedVote) {
-    this.selectedVote = null;
-    await updateDoc(playerRef, { vote: null });
-    showToast(this.messageService, TOAST_MESSAGES.vote.removed);
+    if (value === BIN || value === this.selectedVote) {
+      this.selectedVote = null;
+      await updateDoc(playerRef, { vote: null });
+      showToast(this.messageService, TOAST_MESSAGES.vote.removed);
 
-    const othersVoted = this.players
-      .filter(player => player.id !== this.playerId)
-      .some(hasPlayerVoted);
+      const othersVoted = this.players
+        .filter((player) => player.id !== this.playerId)
+        .some(hasPlayerVoted);
 
-    if (!othersVoted) {
-      const roomRef = this.roomService.getRoomDoc(this.roomId);
-      await updateDoc(roomRef, { showVotes: false });
-      this.showVotes = false;
+      if (!othersVoted) {
+        const roomRef = this.roomService.getRoomDoc(this.roomId);
+        await updateDoc(roomRef, { showVotes: false });
+        this.showVotes = false;
+      }
+
+      return;
     }
 
-    return;
+    this.selectedVote = value;
+    await updateDoc(playerRef, { vote: value });
   }
-
-  this.selectedVote = value;
-  await updateDoc(playerRef, { vote: value });
-}
 
   async renamePlayer(): Promise<void> {
     this.openNameDialog('Enter your new name', '', async (newName) => {
@@ -144,7 +142,11 @@ async selectVote(value: string): Promise<void> {
     updateDoc(roomRef, { showVotes: !this.showVotes });
   }
 
-  openNameDialog(title: string, initialValue: string, callback: (name: string | null) => void): void {
+  openNameDialog(
+    title: string,
+    initialValue: string,
+    callback: (name: string | null) => void
+  ): void {
     this.tempName = initialValue;
     this.nameDialogTitle = title;
     this.nameDialogCallback = callback;
@@ -165,6 +167,19 @@ async selectVote(value: string): Promise<void> {
     this.showNameDialog = false;
   }
 
+  private async initializeRoom(): Promise<void> {
+    await this.loadRoom();
+    await this.setupUser();
+    await this.joinRoom();
+
+    this.subscribeToRoom();
+    this.subscribeToPlayers();
+    this.subscribeToMyVote();
+
+    this.startHeartbeat();
+    this.listenForUnload();
+  }
+
   private async loadRoom(): Promise<void> {
     this.roomId = this.route.snapshot.paramMap.get('roomId')!;
     const roomExists = await this.roomService.roomExists(this.roomId);
@@ -175,7 +190,12 @@ async selectVote(value: string): Promise<void> {
   }
 
   private async setupUser(): Promise<void> {
-    const { id, name } = await this.initializeUser();
+    const { id, name } = await this.playerService.ensurePlayerIdentity(
+      (title, initialValue) =>
+        new Promise((resolve) =>
+          this.openNameDialog(title, initialValue, resolve)
+        )
+    );
     this.playerId = id;
     this.userName = name;
   }
@@ -201,32 +221,15 @@ async selectVote(value: string): Promise<void> {
     window.addEventListener('beforeunload', this.handleLeave);
   }
 
-  private async initializeUser(): Promise<{ id: string; name: string }> {
-    const { id, name: localName } = getLocalPlayerInfo();
-    let name = localName;
-
-    if (!name) {
-      const inputName = await new Promise<string | null>((resolve) => {
-        this.openNameDialog('Enter your name', '', resolve);
-      });
-      if (!inputName) {
-        this.router.navigate(['/']);
-        return { id, name: '' };
-      }
-      name = inputName.trim();
-      localStorage.setItem(STORAGE_KEYS.userName, name);
-    }
-
-    return { id, name };
-  }
-
   private subscribeToRoom(): void {
     const roomDoc = this.roomService.getRoomDoc(this.roomId);
     this.unsubscribeRoom = onSnapshot(roomDoc, (docSnap: any) => {
       const data = docSnap.data();
       if (!data) return;
       this.showVotes = !!data[FIRESTORE_FIELDS.showVotes];
-      this.voteValues = Array.isArray(data[FIRESTORE_FIELDS.voteValues]) ? data[FIRESTORE_FIELDS.voteValues] : [];
+      this.voteValues = Array.isArray(data[FIRESTORE_FIELDS.voteValues])
+        ? data[FIRESTORE_FIELDS.voteValues]
+        : [];
       this.showVotes ? this.calculateAverage() : (this.averageVote = null);
     });
   }
@@ -234,7 +237,9 @@ async selectVote(value: string): Promise<void> {
   private subscribeToPlayers(): void {
     const playersRef = this.roomService.getPlayersCollection(this.roomId);
     this.unsubscribePlayers = onSnapshot(playersRef, (snapshot: any) => {
-      this.players = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Player));
+      this.players = snapshot.docs.map(
+        (doc: any) => ({ id: doc.id, ...doc.data() } as Player)
+      );
       if (this.votedCount === 0) {
         this.showVotes = false;
       }

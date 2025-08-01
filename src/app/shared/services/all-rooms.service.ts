@@ -1,51 +1,75 @@
 import { Injectable, inject } from '@angular/core';
 import { FirebaseApp } from '@angular/fire/app';
 
-import { Observable, combineLatest } from 'rxjs';
+import { Observable, combineLatest, switchMap, map, of } from 'rxjs';
 
-import { getFirestore, collection, onSnapshot, Firestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  Firestore,
+  onSnapshot,
+  QuerySnapshot,
+  DocumentData,
+  QueryDocumentSnapshot,
+  CollectionReference,
+} from 'firebase/firestore';
 
 import { COLLECTIONS } from 'src/app/shared/constants/constants';
 import { RoomOverview } from 'src/app/shared/models/room-overview.model';
 
 @Injectable({ providedIn: 'root' })
 export class AllRoomsService {
-  private app = inject(FirebaseApp);
-  private firestore: Firestore = getFirestore(this.app);
+  readonly app = inject(FirebaseApp);
+  readonly firestore: Firestore = getFirestore(this.app);
 
-getAllRoomsLive(): Observable<RoomOverview[]> {
-  return new Observable(observer => {
-    observer.next([]);
-    const roomsCol = collection(this.firestore, COLLECTIONS.rooms);
-    const unsubscribeRooms = onSnapshot(roomsCol, snapshot => {
-      const roomDocs = snapshot.docs;
-      if (roomDocs.length === 0) {
-        observer.next([]);
-        return;
-      }
-      const roomObservables = roomDocs.map(roomDoc => {
-        const roomId = roomDoc.id;
-        const data = roomDoc.data();
-        const playersCol = collection(this.firestore, `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}`);
-        return new Observable<RoomOverview>(playerObs => {
-          const unsubscribePlayers = onSnapshot(playersCol, playerSnap => {
-            playerObs.next({
-              roomId,
-              data,
-              playerCount: playerSnap.size
-            });
-          });
-          return () => unsubscribePlayers();
+  observeLiveRoomOverviews(): Observable<RoomOverview[]> {
+    const roomsCollectionRef = this.getRoomsCollectionRef();
+
+    return this.observeCollectionSnapshots(roomsCollectionRef).pipe(
+      switchMap((roomDocSnapshots) => {
+        if (!roomDocSnapshots.length) return of([]);
+
+        const roomOverviewStreams = roomDocSnapshots.map((roomDocSnapshot) =>
+          this.getRoomOverviewStream(roomDocSnapshot)
+        );
+
+        return combineLatest(roomOverviewStreams);
+      })
+    );
+  }
+
+  private observeCollectionSnapshots<T = DocumentData>(
+    collectionRef: CollectionReference<T>
+  ): Observable<QueryDocumentSnapshot<T>[]> {
+    return new Observable((observer) => {
+      const unsubscribe = 
+        onSnapshot(collectionRef, (snapshot: QuerySnapshot<T>) => {
+          observer.next(snapshot.docs);
         });
-      });
-      const combined = combineLatest(roomObservables);
-      const sub = combined.subscribe(roomsWithPlayers => {
-        observer.next(Array.isArray(roomsWithPlayers) ? roomsWithPlayers : []);
-      });
-      return () => sub.unsubscribe();
-    });
-    return () => unsubscribeRooms();
-  });
-}
 
+      return () => unsubscribe();
+    });
+  }
+
+  private getRoomsCollectionRef(): CollectionReference<DocumentData> {
+    return collection(this.firestore, COLLECTIONS.rooms);
+  }
+
+  private getPlayersCollectionRef(roomId: string): CollectionReference<DocumentData> {
+    return collection(this.firestore, `${COLLECTIONS.rooms}/${roomId}/${COLLECTIONS.players}`);
+  }
+
+  private getRoomOverviewStream(roomDocSnapshot: QueryDocumentSnapshot<DocumentData>): Observable<RoomOverview> {
+    const roomId = roomDocSnapshot.id;
+    const roomData = roomDocSnapshot.data();
+    const playersCollectionRef = this.getPlayersCollectionRef(roomId);
+
+    return this.observeCollectionSnapshots(playersCollectionRef).pipe(
+      map((playerDocSnapshots) => ({
+        roomId,
+        data: roomData,
+        playerCount: playerDocSnapshots.length,
+      }))
+    );
+  }
 }

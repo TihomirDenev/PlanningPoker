@@ -18,11 +18,15 @@ import { TOAST_MESSAGES } from 'src/app/shared/constants/toast.constants';
   imports: [ToastModule, ProgressSpinnerModule]
 })
 export class CleanupComponent implements OnInit {
-  private router = inject(Router);
-  private roomService = inject(RoomService);
-  private messageService = inject(MessageService);
+  readonly router = inject(Router);
+  readonly roomService = inject(RoomService);
+  readonly messageService = inject(MessageService);
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    this.cleanup();
+  }
+
+  private async cleanup(): Promise<void> {
     try {
       await this.roomService.deleteAllRoomsAndPlayers();
       showToast(this.messageService, TOAST_MESSAGES.cleanup.success);
@@ -30,7 +34,6 @@ export class CleanupComponent implements OnInit {
       console.error('Error while deleting rooms:', error);
       showToast(this.messageService, TOAST_MESSAGES.cleanup.failure);
     }
-
     setTimeout(() => this.router.navigate(['/']), 2700);
   }
 }

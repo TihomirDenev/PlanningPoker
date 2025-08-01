@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
@@ -20,9 +21,9 @@ export class JoinRoomComponent {
   name = '';
   roomCode = '';
 
-  private router = inject(Router);
-  private roomService = inject(RoomService);
-  private messageService = inject(MessageService);
+  readonly router = inject(Router);
+  readonly roomService = inject(RoomService);
+  readonly messageService = inject(MessageService);
 
   async joinRoom(): Promise<void> {
     if (!this.name || !this.roomCode) {
@@ -30,9 +31,11 @@ export class JoinRoomComponent {
     }
 
     const roomExists = await this.roomService.roomExists(this.roomCode);
+
     if (!roomExists) {
       showToast(this.messageService, TOAST_MESSAGES.room.notFound);
       this.roomCode = '';
+
       return;
     }
 

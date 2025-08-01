@@ -12,7 +12,7 @@ import { RoomOverview } from 'src/app/shared/models/room-overview.model';
   standalone: true,
   imports: [RouterModule, CommonModule],
   templateUrl: './all-rooms.component.html',
-  styleUrl: './all-rooms.component.scss'
+  styleUrl: './all-rooms.component.scss',
 })
 export class AllRoomsComponent implements OnInit {
   rooms$!: Observable<RoomOverview[]>;
@@ -20,6 +20,6 @@ export class AllRoomsComponent implements OnInit {
   constructor(public allRoomsService: AllRoomsService) {}
 
   ngOnInit(): void {
-    this.rooms$ = this.allRoomsService.getAllRoomsLive();
+    this.rooms$ = this.allRoomsService.observeLiveRoomOverviews();
   }
 }

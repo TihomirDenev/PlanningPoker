@@ -9,8 +9,8 @@ import { Player } from 'src/app/shared/models/player.model';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-  private app = inject(FirebaseApp);
-  private firestore = getFirestore(this.app);
+  readonly app = inject(FirebaseApp);
+  readonly firestore = getFirestore(this.app);
 
   async roomExists(roomCode: string): Promise<boolean> {
     const roomDoc = doc(this.firestore, `${COLLECTIONS.rooms}/${roomCode}`);

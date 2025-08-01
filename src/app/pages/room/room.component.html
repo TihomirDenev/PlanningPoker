@@ -75,13 +75,11 @@
   <li *ngFor="let player of sortedPlayers" [class.me]="player.id === playerId">
     <span class="playerName">
       <p>{{ player.name | titlecase }}</p>
-      <img
+      <i
+        class="bi bi-pencil rename-img"
         *ngIf="player.id === playerId"
-        class="rename-img"
-        src="/rename.png"
-        alt="Rename"
         (click)="renamePlayer()"
-      />
+      ></i>
     </span>
     <span class="playerVote">
       <ng-container *ngIf="player.vote">

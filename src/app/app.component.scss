@@ -4,11 +4,12 @@
   display: flex;
   flex-direction: column;
   min-height: 97.9vh;
-  background-color: $color-bg;
+  background-color: $color-bg-light;
 
   .main-header {
     border-bottom: 1px solid $color-gold-light;
     text-align: center;
+    background-color: $color-bg;
 
     .card {
       font-size: 2rem;
@@ -28,6 +29,7 @@
     padding: 1rem;
     border-top: 1px solid $color-gold-light;
     color: $color-gold-light;
+    background-color: $color-bg;
 
     .footer-logo {
       width: 40px;

@@ -112,7 +112,7 @@
     padding: 0.75rem 1rem;
     border: 1px solid $color-gold-border;
     border-radius: 8px;
-    background: transparentize($color-white, 0.95);
+    background: $color-bg;
     color: $color-light;
     font-weight: bold;
 
@@ -122,7 +122,8 @@
       gap: 0.5rem;
 
       .rename-img {
-        height: 1.5rem;
+        margin-top: 2px;
+        color: $color-yellow;
         cursor: pointer;
       }
     }

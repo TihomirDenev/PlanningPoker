@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { FirebaseApp } from '@angular/fire/app';
 
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, Firestore } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs } from 'firebase/firestore';
 
 import { RoomSettings } from 'src/app/shared/models/room-settings.model';
 import { COLLECTIONS, FIRESTORE_FIELDS } from 'src/app/shared/constants/constants';
@@ -27,10 +27,6 @@ export class RoomService {
   async updateRoom(roomCode: string, settings: RoomSettings): Promise<void> {
     const roomDoc = doc(this.firestore, `${COLLECTIONS.rooms}/${roomCode}`);
     await setDoc(roomDoc, settings, { merge: true });
-  }
-
-  getFirestore(): Firestore {
-    return this.firestore;
   }
 
   getRoomDoc(roomId: string) {

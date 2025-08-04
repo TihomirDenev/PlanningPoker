@@ -79,6 +79,8 @@ export class CreateRoomComponent {
     await this.roomService.updateRoom(this.roomCode, {
       showVotes: false,
       voteValues,
+      timestamp: Date.now(),
+      roomName: this.roomCode,
     });
 
     showToast(this.messageService, TOAST_MESSAGES.room.created(this.roomCode));

@@ -1,4 +1,5 @@
-export const HEARTBEAT_INTERVAL_MS = 60000;
+export const ROOM_EXPIRATION_MS = 12 * 60 * 60 * 1000; // 12 hours
+export const HEARTBEAT_INTERVAL_MS = 60 * 1000; // 1 minute
 
 export const DEFAULT_VOTE_VALUES = ['1', '2', '3', '5', '8'];
 export const ROUTE_ROOM_BASE = '/room';

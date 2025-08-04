@@ -1,7 +1,7 @@
-# 🎯 Planning Poker
-
 <div align="center">
-  <img src="public/JJLogo.png" alt="JJ Logo" style="height: 100px;" />
+<h1> 🎯 Planning Poker </h1>
+<br/>
+  <img src="public/og-image.png" alt="JJ Logo" style="height: 250px; margin: 0rem;" />
   <br/>
   <h3>A real-time, multiplayer estimation tool for agile teams</h3>
   <a href="https://planning-poker-beta.vercel.app/" target="_blank">🌐 Live Demo</a>

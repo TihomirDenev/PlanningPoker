@@ -64,8 +64,7 @@
       background-color: $color-toast-bg;
 
       &:hover {
-        transform: scale(1.01);
-        background-color: $color-dark-hover;
+        background-color: $color-toast-bg-hover;
       }
     }
 
@@ -88,7 +87,7 @@
 
   @media (max-width: 600px) {
     width: 20rem;
-    padding: 1rem;
+    padding: 1rem 2.5rem;
 
     .title {
       font-size: 1.2rem;

@@ -8,6 +8,7 @@
   .card {
     width: 22rem;
     padding: 2rem;
+    cursor: pointer;
     transition: box-shadow 0.22s cubic-bezier(.22, .61, .36, 1), transform 0.32s cubic-bezier(.22, .61, .36, 1);
 
     .lobby-card-icon {

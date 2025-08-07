@@ -36,3 +36,13 @@
     }
   }
 }
+
+@media (max-width: 600px) {
+  .not-found-content {
+    gap: 1rem;
+
+    .title {
+      font-size: 2rem !important;
+    }
+  }
+}
